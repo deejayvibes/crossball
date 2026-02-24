@@ -414,7 +414,7 @@
     flex-shrink: 0;
     position: relative;
   }
-  /* Concave hole — circle only, no surrounding square */
+  /* Concave hole — with rim catch-light matching board holes */
   .tray-slot .tray-hole {
     width: 46px; height: 46px;
     border-radius: 50%;
@@ -424,9 +424,15 @@
       radial-gradient(circle at 38% 36%,
         #1a0a02 0%, #2e1808 30%, #3e2410 55%, #4a2e18 75%, #5a3818 100%);
     box-shadow:
+      /* deep cavity shadow */
       inset 4px 5px 12px rgba(0,0,0,0.85),
       inset 0 0 16px rgba(0,0,0,0.65),
-      0 1px 0 rgba(120,80,30,0.30);
+      /* rim lip: bright catch-light bottom-right edge (light from top-left) */
+      1px 1px 0 1.5px rgba(160,110,50,0.55),
+      /* rim lip: shadow top-left edge */
+      -1px -1px 0 1px rgba(0,0,0,0.65),
+      /* subtle outer glow of the rim catching ambient light */
+      0 0 3px rgba(100,65,20,0.25);
     position: absolute;
   }
 
@@ -466,33 +472,100 @@
     filter: blur(2px);
   }
 
-  /* ─── Overlay ─── */
+  /* ─── Win Overlay ─── */
+  @keyframes winPop {
+    0%   { transform: scale(0.5) translateY(30px); opacity: 0; }
+    65%  { transform: scale(1.06) translateY(-4px); opacity: 1; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50%       { background-position: 100% 50%; }
+  }
+  @keyframes trophyBounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    40%      { transform: translateY(-10px) scale(1.15); }
+    60%      { transform: translateY(-4px) scale(1.08); }
+  }
   .overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.65);
-    z-index: 100; align-items: center; justify-content: center;
+    background: rgba(10,5,0,0.78);
+    z-index: 101; align-items: center; justify-content: center;
   }
   .overlay.show { display: flex; }
-  .overlay-box {
-    background: linear-gradient(160deg, #d4a858 0%, #b88030 100%);
-    border: 3px solid #7a4e18;
-    padding: 40px 60px; text-align: center; border-radius: 10px;
+  .win-box {
+    animation: winPop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+    border: 2px solid rgba(255,215,0,0.40);
+    border-radius: 18px;
+    padding: 44px 64px 36px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
     box-shadow:
-      0 10px 40px rgba(0,0,0,0.6),
-      inset 2px 2px 8px rgba(255,220,100,0.3),
-      inset -2px -2px 8px rgba(0,0,0,0.3);
+      0 30px 80px rgba(0,0,0,0.90),
+      0 0 0 1px rgba(255,215,0,0.12),
+      inset 0 1px 0 rgba(255,215,0,0.18);
   }
-  .overlay-box h2 { font-size: 28px; color: #fff8e0; margin-bottom: 12px; text-shadow: 1px 2px 4px rgba(0,0,0,0.5); }
-  .overlay-box p  { font-size: 16px; color: #f0d890; margin-bottom: 24px; }
-  .overlay-box button {
-    padding: 10px 34px;
-    background: linear-gradient(180deg, #7acc5a 0%, #3a8028 100%);
-    color: #e8f8d8; border: 1px solid #206010;
-    font-size: 15px; cursor: pointer; border-radius: 6px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+  /* Shimmer top bar */
+  .win-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #ff6b6b);
+    background-size: 300% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+  .win-emoji {
+    font-size: 56px;
+    display: block;
+    margin-bottom: 12px;
+    animation: trophyBounce 1.2s ease-in-out infinite;
+    filter: drop-shadow(0 4px 16px rgba(255,215,0,0.60));
+  }
+  .win-box h2 {
+    font-size: 32px;
+    font-family: Georgia, serif;
+    font-weight: bold;
+    color: #ffd93d;
+    background: linear-gradient(135deg, #ffd93d 0%, #ff9500 50%, #ffd93d 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 2s linear infinite;
+    margin-bottom: 10px;
     letter-spacing: 1px;
   }
-  .overlay-box button:hover { background: linear-gradient(180deg, #8adc6a 0%, #4a9030 100%); }
+  .win-box p {
+    font-size: 16px;
+    font-family: Georgia, serif;
+    color: #a8c8f8;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .win-btn {
+    padding: 12px 40px;
+    background: linear-gradient(135deg, #ffd93d 0%, #ff9500 100%);
+    color: #1a1a2e;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: Georgia, serif;
+    cursor: pointer;
+    border-radius: 50px;
+    letter-spacing: 1.5px;
+    box-shadow:
+      0 4px 20px rgba(255,200,0,0.50),
+      inset 0 1px 0 rgba(255,255,255,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .win-btn:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 8px 28px rgba(255,200,0,0.65), inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .win-btn:active { transform: translateY(0); }
 
 
 
@@ -564,6 +637,187 @@
   }
   .instr-close:hover { background: linear-gradient(180deg, #8adc6a 0%, #4a9030 100%); }
 
+
+  /* ─── Red error blink on invalid marble click ─── */
+  @keyframes errorBlink {
+    0%   { box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50), inset 0 -4px 8px rgba(0,0,0,0.60), 0 0 0 3px rgba(255,60,60,0.0); }
+    20%  { box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50), inset 0 -4px 8px rgba(0,0,0,0.60), 0 0 0 3px rgba(255,60,60,0.90), 0 0 18px rgba(255,40,40,0.60); }
+    40%  { box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50), inset 0 -4px 8px rgba(0,0,0,0.60), 0 0 0 3px rgba(255,60,60,0.0); }
+    60%  { box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50), inset 0 -4px 8px rgba(0,0,0,0.60), 0 0 0 3px rgba(255,60,60,0.90), 0 0 18px rgba(255,40,40,0.60); }
+    100% { box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50), inset 0 -4px 8px rgba(0,0,0,0.60), inset 2px 2px 5px rgba(255,255,255,0.12); }
+  }
+  .marble.error {
+    animation: errorBlink 0.55s ease-out forwards;
+  }
+
+  /* ─── Game Over overlay (distinct style) ─── */
+  .gameover-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.72);
+    z-index: 100; align-items: center; justify-content: center;
+  }
+  .gameover-overlay.show { display: flex; }
+  .gameover-box {
+    background: linear-gradient(160deg, #2a1008 0%, #1a0a04 100%);
+    border: 2px solid #7a2808;
+    border-radius: 12px;
+    padding: 36px 52px 30px;
+    text-align: center;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.85),
+      inset 2px 2px 10px rgba(200,60,20,0.08),
+      inset -2px -2px 10px rgba(0,0,0,0.50);
+  }
+  .gameover-box h2 {
+    font-size: 26px; color: #f07050;
+    font-family: Georgia, serif;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 8px rgba(200,40,20,0.50);
+  }
+  .gameover-box p {
+    font-size: 15px; color: #d0a080;
+    font-family: Georgia, serif;
+    margin-bottom: 26px; line-height: 1.5;
+  }
+  .gameover-box button {
+    padding: 10px 36px;
+    background: linear-gradient(180deg, #a84020 0%, #7a2810 100%);
+    color: #f8d8c8; border: 1px solid #601808;
+    font-size: 15px; cursor: pointer; border-radius: 7px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,160,100,0.25);
+    letter-spacing: 1px; font-family: Georgia, serif;
+  }
+  .gameover-box button:hover { background: linear-gradient(180deg, #c05030 0%, #902818 100%); }
+
+
+  /* ══════════════════════════════════════════
+     CASIO-STYLE ELECTRONIC TIMER
+     Embedded in the wooden table surface
+     Light golden-yellow LCD glow
+  ══════════════════════════════════════════ */
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+  @keyframes lcdPulse {
+    0%, 100% { text-shadow:
+      0 0 4px  rgba(255,220,80,0.60),
+      0 0 10px rgba(255,200,40,0.35),
+      0 0 22px rgba(255,180,0,0.20); }
+    50%       { text-shadow:
+      0 0 6px  rgba(255,230,100,0.80),
+      0 0 14px rgba(255,210,60,0.50),
+      0 0 30px rgba(255,190,10,0.28); }
+  }
+
+  .timer-wrap {
+    margin-top: 28px;        /* 28px gap — board-wrap has 18px padding, total ~120px from board surface */
+    position: relative;
+  }
+
+  /* Outer bezel — dark resin/plastic look, slightly raised off the wood */
+  .timer-bezel {
+    background: linear-gradient(160deg, #1c1008 0%, #120c04 50%, #1a0e06 100%);
+    border-radius: 8px;
+    padding: 10px 18px;
+    box-shadow:
+      /* right + bottom shadows from top-left light source */
+      4px 6px 16px rgba(0,0,0,0.70),
+      1px 2px 5px  rgba(0,0,0,0.55),
+      /* inset bevel — top-left lit edge */
+      inset 1px 1px 2px rgba(180,130,60,0.22),
+      /* inset bevel — bottom-right shadow edge */
+      inset -1px -1px 2px rgba(0,0,0,0.60),
+      /* faint gold glow leaking from LCD inside */
+      0 0 18px rgba(200,160,20,0.12);
+    border: 1px solid rgba(60,40,10,0.80);
+    position: relative;
+  }
+
+  /* Inset screw-holes at corners — detail */
+  .timer-bezel::before,
+  .timer-bezel::after {
+    content: '';
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #2a1e0a, #0a0604);
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.80), 0 0.5px 0 rgba(120,80,20,0.25);
+  }
+  .timer-bezel::before { top: 6px;  left: 6px; }
+  .timer-bezel::after  { bottom: 6px; right: 6px; }
+
+  /* LCD screen area */
+  .timer-screen {
+    background: linear-gradient(160deg, #0e120a 0%, #111608 50%, #0c1008 100%);
+    border-radius: 4px;
+    padding: 7px 16px 8px;
+    border: 1px solid rgba(40,60,10,0.70);
+    box-shadow:
+      inset 0 1px 4px rgba(0,0,0,0.80),
+      inset 0 -1px 2px rgba(100,140,20,0.08),
+      /* green-gold LCD backlight tint */
+      0 0 8px rgba(160,200,0,0.06);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle LCD scan-line overlay */
+  .timer-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent 0px, transparent 2px,
+      rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 3px
+    );
+    pointer-events: none;
+    border-radius: 4px;
+  }
+
+  .timer-label {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: rgba(180,200,60,0.45);
+    margin-bottom: 3px;
+    text-transform: uppercase;
+  }
+
+  /* The actual digits — LCD dot-matrix feel */
+  .timer-display {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: 34px;
+    font-weight: normal;
+    letter-spacing: 5px;
+    color: #d4c040;
+    line-height: 1;
+    animation: lcdPulse 2.5s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+    /* Digit ghost/shadow — unlit segments */
+    text-shadow:
+      0 0 4px  rgba(255,220,80,0.60),
+      0 0 12px rgba(255,200,40,0.35),
+      0 0 24px rgba(255,180,0,0.18);
+  }
+
+  /* Inactive state — dim, no glow, like watch not yet started */
+  .timer-display.idle {
+    color: rgba(140,130,40,0.35);
+    animation: none;
+    text-shadow: none;
+  }
+
+  .timer-sublabel {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: 7px;
+    letter-spacing: 8px;
+    color: rgba(180,200,60,0.30);
+    margin-top: 3px;
+    padding-left: 8px;
+  }
+
 </style>
 </head>
 <body>
@@ -580,6 +834,16 @@
       <div class="board" id="board"></div>
     </div>
   </div>
+  <!-- Casio-style timer -->
+  <div class="timer-wrap" id="timer-wrap">
+    <div class="timer-bezel">
+      <div class="timer-screen">
+        <div class="timer-label">ELAPSED TIME</div>
+        <div class="timer-display" id="timer-display">00:00:00</div>
+        <div class="timer-sublabel">HH &nbsp; MM &nbsp; SS</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Bottom tray -->
@@ -589,16 +853,97 @@
   <div class="tray-bank right" id="tray-right"></div>
 </div>
 
-<!-- Overlay -->
+<!-- Win confetti canvas -->
+<canvas id="confetti-canvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:102;display:none;"></canvas>
+
+<!-- Win Overlay -->
 <div class="overlay" id="overlay">
-  <div class="overlay-box">
+  <div class="overlay-box win-box">
+    <div class="win-emoji">🏆</div>
     <h2 id="overlay-title">You Win!</h2>
-    <p  id="overlay-msg">Amazing! Only one marble left.</p>
-    <button onclick="resetGame()">Play Again</button>
+    <p id="overlay-msg">Brilliant! Only one marble remains.</p>
+    <button class="win-btn" onclick="resetGame()">Play Again</button>
   </div>
 </div>
 
 <script>
+// ── Confetti engine ──────────────────────────────────────────────────────────
+let confettiAnimId = null;
+const CONFETTI_COLORS = [
+  '#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff9500',
+  '#c77dff','#ff5e78','#00c9a7','#f8f32b','#ff85a1'
+];
+
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.style.display = 'block';
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.zIndex = '102';
+  const ctx = canvas.getContext('2d');
+
+  const particles = Array.from({length: 160}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height - canvas.height,
+    w: Math.random() * 10 + 6,
+    h: Math.random() * 5 + 3,
+    color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+    rotation: Math.random() * Math.PI * 2,
+    rotationSpeed: (Math.random() - 0.5) * 0.12,
+    vx: (Math.random() - 0.5) * 3,
+    vy: Math.random() * 3 + 2.5,
+    opacity: 1,
+    shape: Math.random() > 0.5 ? 'rect' : 'circle',
+    wobble: Math.random() * Math.PI * 2,
+    wobbleSpeed: Math.random() * 0.08 + 0.03,
+  }));
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    frame++;
+    let alive = 0;
+    particles.forEach(p => {
+      p.y      += p.vy;
+      p.x      += p.vx + Math.sin(p.wobble) * 1.2;
+      p.wobble += p.wobbleSpeed;
+      p.rotation += p.rotationSpeed;
+      p.vy += 0.06; // gravity
+      if (p.y > canvas.height * 0.7) p.opacity -= 0.018;
+      if (p.opacity <= 0 || p.y > canvas.height + 20) return;
+      alive++;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'circle') {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      }
+      ctx.restore();
+    });
+    if (alive > 0) {
+      confettiAnimId = requestAnimationFrame(draw);
+    } else {
+      canvas.style.display = 'none';
+    }
+  }
+  if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+  draw();
+}
+
+function stopConfetti() {
+  if (confettiAnimId) { cancelAnimationFrame(confettiAnimId); confettiAnimId = null; }
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.style.display = 'none';
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
 const INVALID = -1, EMPTY = 0, MARBLE = 1;
 
 function makeInitialBoard() {
@@ -620,6 +965,45 @@ let board = makeInitialBoard();
 let selected = null;
 let removedMarbles = 0;
 const TRAY_SLOTS = 32;
+
+// ── Casio-style game timer ───────────────────────────────────────────────────
+let timerSeconds  = 0;
+let timerInterval = null;
+let timerStarted  = false;
+
+function padZ(n) { return String(n).padStart(2, '0'); }
+
+function updateTimerDisplay() {
+  const h = Math.floor(timerSeconds / 3600);
+  const m = Math.floor((timerSeconds % 3600) / 60);
+  const s = timerSeconds % 60;
+  document.getElementById('timer-display').textContent =
+    `${padZ(h)}:${padZ(m)}:${padZ(s)}`;
+}
+
+function startTimer() {
+  if (timerInterval) return; // already running
+  document.getElementById('timer-display').classList.remove('idle');
+  timerInterval = setInterval(() => {
+    timerSeconds++;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerInterval  = null;
+  timerStarted   = false;
+  timerSeconds   = 0;
+  updateTimerDisplay();
+  document.getElementById('timer-display').classList.add('idle');
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
 
 function renderBoard() {
   const el = document.getElementById('board');
@@ -645,6 +1029,8 @@ function renderBoard() {
         if (board[r][c] === MARBLE) {
           const marble = document.createElement('div');
           marble.classList.add('marble');
+          marble.dataset.r = r;
+          marble.dataset.c = c;
           if (isSel) marble.classList.add('selected');
           marble.addEventListener('click', () => selectMarble(r, c));
           cell.appendChild(marble);
@@ -685,9 +1071,23 @@ function renderTray() {
 function selectMarble(r, c) {
   if (selected && selected.r === r && selected.c === c) {
     selected = null;
-  } else {
-    selected = getPossibleMoves(r, c).length ? {r, c} : null;
+    renderBoard();
+    return;
   }
+  if (!getPossibleMoves(r, c).length) {
+    // No valid moves — red blink on this marble
+    // Re-render to ensure clean state, then find and animate the marble
+    renderBoard();
+    const allMarbles = document.querySelectorAll('.marble[data-r]');
+    allMarbles.forEach(el => {
+      if (parseInt(el.dataset.r)===r && parseInt(el.dataset.c)===c) {
+        el.classList.add('error');
+        setTimeout(() => el.classList.remove('error'), 600);
+      }
+    });
+    return;
+  }
+  selected = {r, c};
   renderBoard();
 }
 
@@ -711,6 +1111,7 @@ function moveTo(tr, tc) {
   board[move.mr][move.mc]       = EMPTY;
   board[tr][tc]                 = MARBLE;
   removedMarbles++;
+  if (!timerStarted) { timerStarted = true; startTimer(); }
   selected = null;
   renderBoard();
   renderTray();
@@ -732,13 +1133,22 @@ function hasAnyMove() {
 function checkGameState() {
   const n = countMarbles();
   if (n===1) {
-    document.getElementById('overlay-title').textContent = '🎉 You Win!';
-    document.getElementById('overlay-msg').textContent   = 'Brilliant! Only one marble remains.';
+    document.getElementById('overlay-title').textContent = 'You Win!';
+    const h = Math.floor(timerSeconds / 3600);
+    const m = Math.floor((timerSeconds % 3600) / 60);
+    const s = timerSeconds % 60;
+    const timeParts = [];
+    if (h > 0) timeParts.push(`${h}h`);
+    if (m > 0 || h > 0) timeParts.push(`${m}m`);
+    timeParts.push(`${s}s`);
+    document.getElementById('overlay-msg').textContent = `Brilliant! Solved in ${timeParts.join(' ')} ⏱`;
     document.getElementById('overlay').classList.add('show');
+    launchConfetti();
+    stopTimer();
   } else if (!hasAnyMove()) {
-    document.getElementById('overlay-title').textContent = 'Game Over';
-    document.getElementById('overlay-msg').textContent   = `${n} marbles remain — no more moves.`;
-    document.getElementById('overlay').classList.add('show');
+    document.getElementById('gameover-msg').textContent = `${n} marble${n!==1?'s':''} left — no moves available.`;
+    document.getElementById('gameover-overlay').classList.add('show');
+    stopTimer();
   }
 }
 
@@ -747,6 +1157,9 @@ function resetGame() {
   selected = null;
   removedMarbles = 0;
   document.getElementById('overlay').classList.remove('show');
+  document.getElementById('gameover-overlay').classList.remove('show');
+  stopConfetti();
+  resetTimer();
   renderBoard();
   renderTray();
 }
@@ -759,6 +1172,9 @@ function hideInstructions() {
 }
 
 resetGame();
+document.getElementById('timer-display').classList.add('idle');
+
+
 </script>
 
 <!-- Instructions popup -->
@@ -774,6 +1190,16 @@ resetGame();
     </ul>
     <div class="instr-goal">🏆 Goal — leave exactly 1 marble on the board</div>
     <button class="instr-close" onclick="hideInstructions()">Got it</button>
+  </div>
+</div>
+
+
+<!-- Game Over overlay -->
+<div class="gameover-overlay" id="gameover-overlay">
+  <div class="gameover-box">
+    <h2>No More Moves</h2>
+    <p id="gameover-msg">You got stuck with some marbles left.<br>Give it another go!</p>
+    <button onclick="resetGame()">Try Again</button>
   </div>
 </div>
 
