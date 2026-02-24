@@ -696,6 +696,9 @@
   .gameover-box button:hover { background: linear-gradient(180deg, #c05030 0%, #902818 100%); }
 
 
+  /* Standalone reset — mobile only, hidden on desktop */
+  .reset-btn-standalone { display: none; }
+
   /* ══════════════════════════════════════════
      CASIO-STYLE ELECTRONIC TIMER
      Embedded in the wooden table surface
@@ -907,34 +910,22 @@
       margin-top: 14px;
       width: calc(100vw - 48px);
       max-width: 360px;
-    /* Mobile: collapse tray to nothing */
+    }
+    /* Mobile: hide entire tray */
     .tray-outer {
-      height: 0;
-      min-width: unset;
-      padding: 0;
-      background: transparent;
-      border: none;
-      box-shadow: none;
-      overflow: visible;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      display: none !important;
     }
-    /* Hide marble banks */
-    .tray-bank {
-      display: none;
-    }
-    /* Reset button floats out of collapsed tray */
-    .reset-btn {
+    /* Mobile: show standalone reset button */
+    .reset-btn-standalone {
+      display: block;
       position: static !important;
       transform: none !important;
-      visibility: visible !important;
-      margin-top: 14px;
+      margin: 14px auto 20px;
       width: calc(100vw - 48px);
       max-width: 360px;
       text-align: center;
     }
-    .reset-btn:active {
+    .reset-btn-standalone:active {
       transform: translateY(1px) !important;
     }
 
@@ -975,9 +966,11 @@
 <!-- Bottom tray -->
 <div class="tray-outer">
   <div class="tray-bank left"  id="tray-left"></div>
-  <button class="reset-btn inactive" onclick="resetGame()">Reset</button>
+  <button class="reset-btn reset-btn-tray inactive" onclick="resetGame()">Reset</button>
   <div class="tray-bank right" id="tray-right"></div>
 </div>
+<!-- Standalone reset for mobile (outside tray) -->
+<button class="reset-btn reset-btn-standalone inactive" onclick="resetGame()">Reset</button>
 
 <!-- Win confetti canvas -->
 <canvas id="confetti-canvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:102;display:none;"></canvas>
