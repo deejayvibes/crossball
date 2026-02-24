@@ -1171,8 +1171,10 @@ function hideInstructions() {
   document.getElementById('instr-overlay').classList.remove('show');
 }
 
-resetGame();
-document.getElementById('timer-display').classList.add('idle');
+window.addEventListener('DOMContentLoaded', () => {
+  resetGame();
+  document.getElementById('timer-display').classList.add('idle');
+});
 
 
 </script>
