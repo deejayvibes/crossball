@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0049)file:///Users/dhaneesh/Downloads/brainvita_5.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cross+Ball</title>
 <style>
@@ -987,41 +987,71 @@
   }
 
 
-  /* ─── Invalid move toast ─── */
+  /* ─── Invalid move toast — slides in below the header ─── */
   @keyframes toastIn {
-    from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    from { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; }
+    to   { opacity: 1; max-height: 48px; padding-top: 8px; padding-bottom: 8px; }
   }
   @keyframes toastOut {
-    from { opacity: 1; transform: translateX(-50%) translateY(0); }
-    to   { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    from { opacity: 1; max-height: 48px; padding-top: 8px; padding-bottom: 8px; }
+    to   { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; }
   }
   .toast {
-    position: fixed;
-    bottom: 36px;
-    left: 50%;
-    transform: translateX(-50%) translateY(10px);
-    background: linear-gradient(135deg, #2a1008 0%, #1a0804 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    width: 100%;
+    overflow: hidden;
+    max-height: 0;
+    padding: 0 20px;
+    background: linear-gradient(135deg, #2a0e06 0%, #1e0a04 100%);
     color: #f0a070;
     font-family: Georgia, serif;
-    font-size: 14px;
-    letter-spacing: 0.4px;
-    padding: 12px 22px;
-    border-radius: 8px;
-    border: 1px solid rgba(200,80,40,0.45);
-    box-shadow:
-      0 6px 24px rgba(0,0,0,0.65),
-      inset 0 1px 0 rgba(255,120,60,0.15);
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid rgba(180,60,20,0.40);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.40);
     pointer-events: none;
     opacity: 0;
-    z-index: 300;
+    z-index: 50;
     white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .toast.show {
+    animation: toastIn 0.25s ease forwards;
+  }
+  .toast.hide {
+    animation: toastOut 0.30s ease forwards;
+  }
   }
   .toast.show {
     animation: toastIn 0.22s ease forwards;
   }
   .toast.hide {
     animation: toastOut 0.30s ease forwards;
+  }
+
+
+  /* ─── Onboarding hint pulse — valid first-move marbles ─── */
+  @keyframes hintPulse {
+    0%   { box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50),
+                       inset 0 -4px 8px rgba(0,0,0,0.60), inset 2px 2px 5px rgba(255,255,255,0.12),
+                       0 0 0 0px rgba(255,210,60,0.0),
+                       0 0 0px rgba(255,190,20,0.0); }
+    45%  { box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50),
+                       inset 0 -4px 8px rgba(0,0,0,0.60), inset 2px 2px 5px rgba(255,255,255,0.12),
+                       0 0 32px rgba(255,190,20,0.80),
+                       0 0 60px rgba(255,160,0,0.45); }
+    100% { box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50),
+                       inset 0 -4px 8px rgba(0,0,0,0.60), inset 2px 2px 5px rgba(255,255,255,0.12),
+                       0 0 0 0px rgba(255,210,60,0.0),
+                       0 0 0px rgba(255,190,20,0.0); }
+  }
+  .marble.hint {
+    animation: hintPulse 1.0s ease-in-out 4;
+    /* Also brighten the marble itself slightly */
+    filter: brightness(1.35) saturate(1.2);
   }
 
 </style>
@@ -1033,11 +1063,20 @@
   <div class="logo"><span class="box">C</span>ross<span class="cross">+</span>Ball</div>
   <button class="instructions-btn" onclick="showInstructions()">Instructions</button>
 </div>
+<!-- Invalid move banner — slides in below header -->
+<div class="toast" id="invalid-toast">
+  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+    <circle cx="8" cy="8" r="7.5" stroke="#e05030" stroke-width="1.2"></circle>
+    <line x1="8" y1="4.5" x2="8" y2="9" stroke="#e05030" stroke-width="1.8" stroke-linecap="round"></line>
+    <circle cx="8" cy="11.5" r="0.9" fill="#e05030"></circle>
+  </svg>
+  Invalid move. Please check the instructions.
+</div>
 <!-- Main board area -->
 <div class="main">
   <div class="board-wrap">
     <div class="board-inner">
-      <div class="board" id="board"></div>
+      <div class="board" id="board"><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell light"><div class="marble" data-r="0" data-c="2"></div></div><div class="cell dark"><div class="marble" data-r="0" data-c="3"></div></div><div class="cell light"><div class="marble" data-r="0" data-c="4"></div></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell dark"><div class="marble" data-r="1" data-c="2"></div></div><div class="cell light"><div class="marble" data-r="1" data-c="3"></div></div><div class="cell dark"><div class="marble" data-r="1" data-c="4"></div></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell light"><div class="marble" data-r="2" data-c="0"></div></div><div class="cell dark"><div class="marble" data-r="2" data-c="1"></div></div><div class="cell light"><div class="marble" data-r="2" data-c="2"></div></div><div class="cell dark"><div class="marble" data-r="2" data-c="3"></div></div><div class="cell light"><div class="marble" data-r="2" data-c="4"></div></div><div class="cell dark"><div class="marble" data-r="2" data-c="5"></div></div><div class="cell light"><div class="marble" data-r="2" data-c="6"></div></div><div class="cell dark"><div class="marble" data-r="3" data-c="0"></div></div><div class="cell light"><div class="marble" data-r="3" data-c="1"></div></div><div class="cell dark"><div class="marble" data-r="3" data-c="2"></div></div><div class="cell light"><div class="marble" data-r="3" data-c="3"></div></div><div class="cell dark"><div class="hole"></div></div><div class="cell light"><div class="hole"></div></div><div class="cell dark"><div class="marble" data-r="3" data-c="6"></div></div><div class="cell light"><div class="marble" data-r="4" data-c="0"></div></div><div class="cell dark"><div class="marble" data-r="4" data-c="1"></div></div><div class="cell light"><div class="marble" data-r="4" data-c="2"></div></div><div class="cell dark"><div class="marble" data-r="4" data-c="3"></div></div><div class="cell light"><div class="marble" data-r="4" data-c="4"></div></div><div class="cell dark"><div class="marble" data-r="4" data-c="5"></div></div><div class="cell light"><div class="marble" data-r="4" data-c="6"></div></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell dark"><div class="marble" data-r="5" data-c="2"></div></div><div class="cell light"><div class="marble" data-r="5" data-c="3"></div></div><div class="cell dark"><div class="marble" data-r="5" data-c="4"></div></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell light"><div class="marble" data-r="6" data-c="2"></div></div><div class="cell dark"><div class="marble" data-r="6" data-c="3"></div></div><div class="cell light"><div class="marble" data-r="6" data-c="4"></div></div><div class="cell inactive"></div><div class="cell inactive"></div></div>
     </div>
   </div>
   <!-- Casio-style timer -->
@@ -1045,7 +1084,7 @@
     <div class="timer-bezel">
       <div class="timer-screen">
         <div class="timer-label">ELAPSED TIME</div>
-        <div class="timer-display" id="timer-display">00:00:00</div>
+        <div class="timer-display" id="timer-display">00:01:10</div>
         <div class="timer-sublabel">HH &nbsp; MM &nbsp; SS</div>
       </div>
     </div>
@@ -1054,12 +1093,12 @@
 
 <!-- Bottom tray -->
 <div class="tray-outer">
-  <div class="tray-bank left"  id="tray-left"></div>
-  <button class="reset-btn reset-btn-tray inactive" onclick="resetGame()">Reset</button>
-  <div class="tray-bank right" id="tray-right"></div>
+  <div class="tray-bank left" id="tray-left"><div class="tray-slot"><div class="tray-marble"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div></div>
+  <button class="reset-btn reset-btn-tray" onclick="resetGame()">Reset</button>
+  <div class="tray-bank right" id="tray-right"><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div></div>
 </div>
 <!-- Standalone reset for mobile (outside tray) -->
-<button class="reset-btn reset-btn-standalone inactive" onclick="resetGame()">Reset</button>
+<button class="reset-btn reset-btn-standalone" onclick="resetGame()">Reset</button>
 
 <!-- Win confetti canvas -->
 <canvas id="confetti-canvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:102;display:none;"></canvas>
@@ -1277,6 +1316,31 @@ function renderTray() {
 }
 
 
+
+// ── Onboarding hint pulse ────────────────────────────────────────────────────
+let hintTimeout = null;
+let hintsActive = false;
+
+function showHints() {
+  hintsActive = true;
+  // Find all marbles that have at least one valid first move
+  const marbleEls = document.querySelectorAll('.marble[data-r]');
+  marbleEls.forEach(el => {
+    const r = parseInt(el.dataset.r), c = parseInt(el.dataset.c);
+    if (getPossibleMoves(r, c).length > 0) {
+      el.classList.add('hint');
+    }
+  });
+  // Auto-clear after 3 pulses (~3.3s)
+  hintTimeout = setTimeout(clearHints, 4200);
+}
+
+function clearHints() {
+  hintsActive = false;
+  if (hintTimeout) { clearTimeout(hintTimeout); hintTimeout = null; }
+  document.querySelectorAll('.marble.hint').forEach(el => el.classList.remove('hint'));
+}
+
 // ── Invalid move toast ───────────────────────────────────────────────────────
 let invalidClickCount = 0;
 let toastTimer = null;
@@ -1294,6 +1358,7 @@ function showInvalidToast() {
 }
 
 function selectMarble(r, c) {
+  if (hintsActive) clearHints();
   if (selected && selected.r === r && selected.c === c) {
     selected = null;
     renderBoard();
@@ -1394,6 +1459,7 @@ function resetGame() {
   resetTimer();
   document.querySelectorAll('.reset-btn').forEach(b => b.classList.add('inactive'));
   renderBoard();
+  setTimeout(showHints, 400);
   renderTray();
 }
 
@@ -1407,6 +1473,7 @@ function hideInstructions() {
 window.addEventListener('DOMContentLoaded', () => {
   resetGame();
   document.getElementById('timer-display').classList.add('idle');
+  setTimeout(showHints, 600);
 });
 
 
@@ -1439,9 +1506,5 @@ window.addEventListener('DOMContentLoaded', () => {
 </div>
 
 
-<!-- Invalid move toast notification -->
-<div class="toast" id="invalid-toast">
-  Invalid move. Please check the instructions.
-</div>
-</body>
-</html>
+
+</body></html>
