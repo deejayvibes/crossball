@@ -794,9 +794,9 @@
 
   .timer-label {
     font-family: 'Share Tech Mono', 'Courier New', monospace;
-    font-size: 8px;
+    font-size: 11px;
     letter-spacing: 3px;
-    color: rgba(180,200,60,0.45);
+    color: rgba(220,240,100,0.80);
     margin-bottom: 3px;
     text-transform: uppercase;
   }
@@ -826,14 +826,7 @@
     text-shadow: none;
   }
 
-  .timer-sublabel {
-    font-family: 'Share Tech Mono', 'Courier New', monospace;
-    font-size: 7px;
-    letter-spacing: 8px;
-    color: rgba(180,200,60,0.30);
-    margin-top: 3px;
-    padding-left: 8px;
-  }
+
 
 
   /* ═══════════════════════════════════════════════
@@ -1536,6 +1529,38 @@
     }
   }
 
+
+  /* Timer digit labels aligned below each pair */
+  .timer-columns {
+    display: flex;
+    justify-content: center;
+  }
+  .timer-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  /* Timer unit labels */
+  .timer-col-row {
+    position: relative;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: 22px;      /* same as .timer-display — sets ch unit */
+    letter-spacing: 3px;  /* same as .timer-display */
+    height: 14px;
+    margin-top: 4px;
+    width: 100%;
+  }
+  .timer-unit {
+    position: absolute;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: 8px;
+    color: rgba(220,240,100,0.60);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    text-align: left;
+    top: 0;
+  }
+
 </style>
 </head>
 <body>
@@ -1565,8 +1590,12 @@
         <div class="timer-bezel">
           <div class="timer-screen">
             <div class="timer-label">ELAPSED TIME</div>
-            <div class="timer-display" id="timer-display-mobile">00:00:00</div>
-            <div class="timer-sublabel">HH &nbsp; MM &nbsp; SS</div>
+            <div class="timer-columns">
+              <div class="timer-col">
+                <div class="timer-display" id="timer-display-mobile">00:00:00</div>
+
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1592,8 +1621,12 @@
         <div class="timer-bezel" style="padding:10px 12px;">
           <div class="timer-screen">
             <div class="timer-label">ELAPSED TIME</div>
-            <div class="timer-display" id="timer-display">00:00:00</div>
-            <div class="timer-sublabel">HH &nbsp; MM &nbsp; SS</div>
+            <div class="timer-columns">
+              <div class="timer-col">
+                <div class="timer-display" id="timer-display">00:00:00</div>
+
+              </div>
+            </div>
           </div>
         </div>
       </div>
