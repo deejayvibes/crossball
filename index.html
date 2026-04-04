@@ -2584,11 +2584,13 @@ async function submitScore() {
   nameErr.textContent = '';
   document.getElementById('name-overlay').classList.remove('show');
   document.getElementById('play-again-btn').style.display = '';
-  // Always update the recent_players entry with the final submitted name
+
+  // Update recent_players with real name immediately
   if (window._lastRecentId && name) {
-    console.log("Updating recent player", window._lastRecentId, "with name:", name);
-    await updateRecentPlayerName(window._lastRecentId, name);
+    console.log("Updating recent player id:", window._lastRecentId, "name:", name);
+    updateRecentPlayerName(window._lastRecentId, name); // fire and forget — don't await
   }
+
   const qualified = await insertScore(name, timerSeconds);
   if (qualified === false) {
     // Not in top 6 — show a gentle toast
@@ -2763,8 +2765,7 @@ function renderRecentPlayers(rows, elId) {
     if (rows && rows[i]) {
       const r = rows[i];
       // Replace old "Guest 247"-style names with positional Guest Z/Y/X
-      const letters = ['Z', 'Y', 'X'];
-      const storedName = (r.player_name === 'Guest' || /^Guest\s+\d+$/.test(r.player_name)) ? 'Guest ' + letters[i] : r.player_name;
+      const storedName = /^Guest(\s+\d+)?$/.test(r.player_name) ? 'Guest' : r.player_name;
       const rawName = storedName.length > 12 ? storedName.slice(0, 12) + '…' : storedName;
       const marbleWord = r.marbles_left === 1 ? 'marble' : 'marbles';
       const nameMarbles = `${rawName} <span style="opacity:0.50;font-size:11px;">(${r.marbles_left} ${marbleWord})</span>`;
@@ -2787,11 +2788,7 @@ function renderRecentPlayers(rows, elId) {
   el.innerHTML = html;
 }
 
-function guestName(index) {
-  // index 0 = most recent (Z), 1 = middle (Y), 2 = oldest (X)
-  const letters = ['Z', 'Y', 'X'];
-  return 'Guest ' + (letters[index] || 'Z');
-}
+
 
 function showAbout() { document.getElementById('about-overlay').classList.add('show'); }
 function hideAbout() { document.getElementById('about-overlay').classList.remove('show'); }
@@ -2996,7 +2993,7 @@ async function checkGameState() {
     launchConfetti();
     stopTimer();
     // Save to recent players
-    const recentName = currentPlayerName !== 'Guest' ? currentPlayerName : guestName(0);
+    const recentName = currentPlayerName !== 'Guest' ? currentPlayerName : 'Guest';
     window._lastRecentIsGuest = (currentPlayerName === 'Guest');
     // Pick Guest letter not already in recent list
     if (currentPlayerName === 'Guest') {
@@ -3015,7 +3012,7 @@ async function checkGameState() {
     document.getElementById('gameover-overlay').classList.add('show');
     stopTimer();
     // Save to recent players
-    const recentNameLoss = currentPlayerName !== 'Guest' ? currentPlayerName : guestName(0);
+    const recentNameLoss = currentPlayerName !== 'Guest' ? currentPlayerName : 'Guest';
     insertRecentPlayer(recentNameLoss, countMarbles(), timerSeconds, 'loss').then(refreshRecentPlayers);
     incrementAttempts().then(loadSidebar);
   }
