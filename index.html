@@ -1908,8 +1908,8 @@ async function startWithName() {
     input.focus();
     return;
   }
-  if (raw.length > 12) {
-    errEl.textContent = 'Max 12 characters allowed.';
+  if (raw.length > 30) {
+    errEl.textContent = 'Max 30 characters allowed.';
     input.focus();
     return;
   }
@@ -2476,7 +2476,7 @@ window.addEventListener('DOMContentLoaded', () => {
     <h2>You solved it!</h2>
     <p id="name-time-display"></p>
     <input class="name-input" id="player-name-input" type="text"
-           maxlength="12" placeholder="Enter your name" autocomplete="off" />
+           maxlength="30" placeholder="Enter your name" autocomplete="off" />
     <p id="name-error" style="color:#f07050;font-family:Georgia,serif;font-size:12px;min-height:16px;margin:6px 0 4px;"></p>
     <button class="name-submit" onclick="submitScore()">Save to Leaderboard</button>
     <button class="name-skip" onclick="skipScore()">Skip</button>
@@ -2490,7 +2490,7 @@ window.addEventListener('DOMContentLoaded', () => {
     <div class="welcome-logo">Cross<span>+</span>Ball</div>
     <label class="welcome-label" id="welcome-label" for="welcome-input">You are gamer #…</label>
     <input class="welcome-input" id="welcome-input" type="text"
-           maxlength="12" placeholder="Enter your name" autocomplete="off" />
+           maxlength="30" placeholder="Enter your name" autocomplete="off" />
     <span class="welcome-error" id="welcome-error"></span>
     <button class="welcome-play" onclick="startWithName()">Play</button>
     <button class="welcome-guest" onclick="startAsGuest()">Continue as Guest</button>
