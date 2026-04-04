@@ -367,37 +367,35 @@
     padding-bottom: 10px;
   }
 
-  /* Reset button — centred in tray between slot banks */
+  /* Reset button — plain text link, no box */
   .reset-btn {
-    position: absolute;
-    left: 50%; top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-    padding: 10px 32px;
-    background: linear-gradient(180deg, #7a5020 0%, #5a3810 100%);
-    color: #f0d880;
-    border: 1px solid #3a2008;
-    border-bottom: 2px solid #2a1400;
-    font-size: 17px; letter-spacing: 1.5px;
-    cursor: pointer; border-radius: 6px;
-    box-shadow:
-      0 3px 8px rgba(0,0,0,0.55),
-      inset 0 1px 0 rgba(255,220,100,0.25);
-    white-space: nowrap;
-    transition: color 0.3s;
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 10px 0;
+    margin-top: 10px;
+    color: #c8a050;
+    font-family: Georgia, serif;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0.75;
+    transition: color 0.2s, opacity 0.2s;
+    display: block;
+  }
+  .reset-btn:hover {
+    color: #f0d060;
+    opacity: 1;
+  }
+  .reset-btn:active {
+    color: #fff0a0;
   }
   .reset-btn.inactive {
     color: #6a5030;
+    opacity: 0.35;
     cursor: not-allowed;
     pointer-events: none;
-  }
-  .reset-btn:hover {
-    background: linear-gradient(180deg, #8a6030 0%, #6a4820 100%);
-    color: #ffe898;
-  }
-  .reset-btn:active {
-    transform: translate(-50%, -49%);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.6);
   }
 
   /* Slot banks — less horizontal padding, more vertical space */
@@ -796,9 +794,9 @@
   /* The actual digits — LCD dot-matrix feel */
   .timer-display {
     font-family: 'Share Tech Mono', 'Courier New', monospace;
-    font-size: 34px;
+    font-size: 22px;
     font-weight: normal;
-    letter-spacing: 5px;
+    letter-spacing: 3px;
     color: #d4c040;
     line-height: 1;
     animation: lcdPulse 2.5s ease-in-out infinite;
@@ -903,30 +901,15 @@
 
 
 
-    /* Reset button — static below timer on mobile */
-    .reset-btn {
-      position: static !important;
-      transform: none !important;
-      margin-top: 14px;
-      width: calc(100vw - 48px);
-      max-width: 360px;
-    }
     /* Mobile: hide entire tray */
     .tray-outer {
       display: none !important;
     }
-    /* Mobile: show standalone reset button */
+    /* Mobile standalone reset */
     .reset-btn-standalone {
       display: block;
-      position: static !important;
-      transform: none !important;
-      margin: 14px auto 20px;
-      width: calc(100vw - 48px);
-      max-width: 360px;
       text-align: center;
-    }
-    .reset-btn-standalone:active {
-      transform: translateY(1px) !important;
+      margin: 4px auto 16px;
     }
 
     /* Topbar — tighter on mobile */
@@ -1058,21 +1041,19 @@
     }
   }
   .marble.hint {
-    animation: hintRing 0.80s ease-out 1 forwards;
+    animation: hintRing 1.4s ease-out 1 forwards;
   }
 
 
   /* ─── Leaderboard button in topbar ─── */
   .leaderboard-btn {
     background: none; border: none;
-    color: #c8a858; font-family: Georgia, serif;
-    font-size: 14px; letter-spacing: 0.5px;
-    cursor: pointer; padding: 0 0 0 16px;
-    text-decoration: none;
+    color: #e0c880; font-size: 13px; cursor: pointer; letter-spacing: 1px;
+    text-decoration: none; padding: 0;
     opacity: 0.85;
     transition: color 0.2s, opacity 0.2s;
   }
-  .leaderboard-btn:hover { color: #f0d878; opacity: 1; }
+  .leaderboard-btn:hover { color: #fff; opacity: 1; }
 
   /* ─── Leaderboard overlay ─── */
   .lb-overlay {
@@ -1363,17 +1344,19 @@
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    gap: 32px;
     width: 100%;
     flex: 1;
+    position: relative;
   }
+  /* Sidebar floats to the right without affecting board centering */
   .sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 200px;
+    position: absolute;
+    right: 32px;
+    top: 0;
+    gap: 14px;
+    width: 220px;
     flex-shrink: 0;
-    padding-top: 18px; /* align with board top */
+    padding-top: 18px;
   }
   .sidebar-card {
     background: linear-gradient(160deg, rgba(30,20,8,0.82) 0%, rgba(18,14,4,0.88) 100%);
@@ -1468,6 +1451,92 @@
     .lb-stats-mobile { display: none; }
   }
 
+
+  /* Timer desktop: shown in sidebar only */
+  .timer-mobile { display: none; }
+  .timer-desktop { display: block; padding: 0; }
+  .timer-desktop .timer-bezel {
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  @media (max-width: 999px) {
+    .timer-desktop { display: none !important; }
+    .timer-mobile  { display: block; }
+  }
+
+
+  /* ─── Hamburger menu (mobile only) ─── */
+  .hamburger-btn {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none; border: none;
+    cursor: pointer; padding: 4px;
+  }
+  .hamburger-btn span {
+    display: block; width: 22px; height: 2px;
+    background: #c8a858; border-radius: 2px;
+    transition: 0.2s;
+  }
+  .hamburger-menu {
+    display: none;
+    position: absolute;
+    top: 100%; right: 0;
+    background: linear-gradient(160deg, #2a1c08 0%, #1a1004 100%);
+    border: 1px solid rgba(200,168,60,0.30);
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.60);
+    z-index: 150;
+    min-width: 180px;
+    overflow: hidden;
+  }
+  .hamburger-menu.open { display: block; }
+  .ham-item {
+    display: block; width: 100%;
+    background: none; border: none;
+    padding: 14px 20px;
+    text-align: left;
+    font-family: Georgia, serif;
+    font-size: 14px; color: #d0b878;
+    cursor: pointer; letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(200,168,60,0.12);
+  }
+  .ham-item:last-child { border-bottom: none; }
+  .ham-item:hover { background: rgba(200,168,60,0.08); color: #f0d060; }
+
+  /* ─── Mobile stat panels below board ─── */
+  .mobile-stats {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    width: calc(100vw - 24px);
+    max-width: 480px;
+    margin-top: 16px;
+    padding-bottom: 24px;
+  }
+  .mobile-stat-card {
+    width: 100%; box-sizing: border-box;
+  }
+  .mobile-stat-card .stats-number { font-size: 28px; }
+
+  @media (max-width: 999px) {
+    /* Show hamburger, hide desktop nav */
+    .hamburger-btn { display: flex; }
+    .desktop-nav   { display: none !important; }
+    /* Show mobile stats */
+    .mobile-stats  { display: flex; }
+    /* Topbar needs relative for dropdown */
+    .topbar { position: relative; }
+    /* Timer above board on mobile */
+    .timer-mobile {
+      margin-bottom: 12px;
+      margin-top: 0;
+      width: calc(100vw - 24px);
+      max-width: 400px;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -1475,10 +1544,20 @@
 <!-- Top bar -->
 <div class="topbar">
   <div class="logo"><span class="box">C</span>ross<span class="cross">+</span>Ball</div>
-  <div style="display:flex;align-items:center;gap:32px;">
+  <!-- Desktop nav -->
+  <div class="topbar-nav desktop-nav" style="display:flex;align-items:center;gap:32px;">
     <button class="leaderboard-btn" onclick="showLeaderboard()">🏆 Leaderboard</button>
     <button class="instructions-btn" onclick="showInstructions()">Instructions</button>
   </div>
+  <!-- Mobile hamburger -->
+  <button class="hamburger-btn" id="hamburger-btn" onclick="toggleHamburger()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+<!-- Hamburger dropdown menu -->
+<div class="hamburger-menu" id="hamburger-menu">
+  <button class="ham-item" onclick="showLeaderboard();closeHamburger()">🏆 Leaderboard</button>
+  <button class="ham-item" onclick="showInstructions();closeHamburger()">📖 Instructions</button>
 </div>
 <!-- Invalid move banner — slides in below header -->
 <div class="toast" id="invalid-toast">
@@ -1492,16 +1571,42 @@
 <!-- Main board area -->
 <div class="main">
   <div class="game-area">
-    <!-- Board + timer stacked -->
-    <div style="display:flex;flex-direction:column;align-items:center;">
+    <!-- Board only -->
+    <div style="display:flex;flex-direction:column;align-items:center;width:100%;">
+      <!-- Timer: above board on mobile -->
+      <div class="timer-wrap timer-mobile" id="timer-wrap-mobile">
+        <div class="timer-bezel">
+          <div class="timer-screen">
+            <div class="timer-label">ELAPSED TIME</div>
+            <div class="timer-display" id="timer-display-mobile">00:00:00</div>
+            <div class="timer-sublabel">HH &nbsp; MM &nbsp; SS</div>
+          </div>
+        </div>
+      </div>
       <div class="board-wrap">
         <div class="board-inner">
           <div class="board" id="board"></div>
         </div>
       </div>
-      <!-- Casio-style timer -->
-      <div class="timer-wrap" id="timer-wrap">
-        <div class="timer-bezel">
+      <!-- Reset — plain text link below board -->
+      <button class="reset-btn reset-btn-tray inactive" onclick="resetGame()">Reset</button>
+      <!-- Mobile stat panels — below reset -->
+      <div class="mobile-stats">
+        <div class="sidebar-card mobile-stat-card">
+          <div class="sidebar-title">Total Games Played</div>
+          <div class="stats-number" id="sb-total-mobile2">—</div>
+        </div>
+        <div class="sidebar-card mobile-stat-card">
+          <div class="sidebar-title">🏆 Top 3 Players</div>
+          <div id="sb-minilb-mobile"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Right sidebar: stats + mini leaderboard (desktop only) -->
+    <div class="sidebar" id="sidebar">
+      <!-- Timer card (desktop only) -->
+      <div class="sidebar-card timer-wrap timer-desktop" id="timer-wrap">
+        <div class="timer-bezel" style="padding:10px 12px;">
           <div class="timer-screen">
             <div class="timer-label">ELAPSED TIME</div>
             <div class="timer-display" id="timer-display">00:00:00</div>
@@ -1509,9 +1614,6 @@
           </div>
         </div>
       </div>
-    </div>
-    <!-- Right sidebar: stats + mini leaderboard (desktop only) -->
-    <div class="sidebar" id="sidebar">
       <div class="sidebar-card">
         <div class="sidebar-title">Total Games Played</div>
         <div class="stats-number" id="sb-total">—</div>
@@ -1527,7 +1629,6 @@
 <!-- Bottom tray -->
 <div class="tray-outer">
   <div class="tray-bank left"  id="tray-left"></div>
-  <button class="reset-btn reset-btn-tray inactive" onclick="resetGame()">Reset</button>
   <div class="tray-bank right" id="tray-right"></div>
 </div>
 <!-- Standalone reset for mobile (outside tray) -->
@@ -1657,13 +1758,16 @@ function updateTimerDisplay() {
   const h = Math.floor(timerSeconds / 3600);
   const m = Math.floor((timerSeconds % 3600) / 60);
   const s = timerSeconds % 60;
-  document.getElementById('timer-display').textContent =
-    `${padZ(h)}:${padZ(m)}:${padZ(s)}`;
+  const td = document.getElementById('timer-display');
+  const tdm = document.getElementById('timer-display-mobile');
+  const timeStr = `${padZ(h)}:${padZ(m)}:${padZ(s)}`;
+  if (td) td.textContent = timeStr;
+  if (tdm) tdm.textContent = timeStr;
 }
 
 function startTimer() {
   if (timerInterval) return; // already running
-  document.getElementById('timer-display').classList.remove('idle');
+  ['timer-display','timer-display-mobile'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('idle');});
   timerInterval = setInterval(() => {
     timerSeconds++;
     updateTimerDisplay();
@@ -1676,7 +1780,7 @@ function resetTimer() {
   timerStarted   = false;
   timerSeconds   = 0;
   updateTimerDisplay();
-  document.getElementById('timer-display').classList.add('idle');
+  ['timer-display','timer-display-mobile'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('idle');});
 }
 
 function stopTimer() {
@@ -1844,17 +1948,30 @@ async function fetchLeaderboard() {
 }
 
 async function insertScore(name, seconds) {
+  // Fetch current 6th place time — only insert if this score qualifies
+  const res = await fetch(
+    SB_URL + "/rest/v1/leaderboard?select=time_seconds&order=time_seconds.asc&limit=6",
+    { headers: sbHeaders() }
+  );
+  if (res.ok) {
+    const rows = await res.json();
+    // If leaderboard already has 6 entries and new score is slower, skip
+    if (rows.length >= 6 && seconds >= rows[rows.length - 1].time_seconds) {
+      return false; // not in top 6
+    }
+  }
   await fetch(SB_URL + "/rest/v1/leaderboard", {
     method: "POST",
     headers: { ...sbHeaders(), "Prefer": "return=minimal" },
     body: JSON.stringify({ player_name: name, time_seconds: seconds })
   });
+  return true;
 }
 
 function formatTime(s) {
   const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
-  if (h > 0) return `${padZ(h)}:${padZ(m)}:${padZ(sec)}`;
-  return `${padZ(m)}:${padZ(sec)}`;
+  if (h > 0) return `${padZ(h)}:${padZ(m)}:${padZ(sec)} min.`;
+  return `${padZ(m)}:${padZ(sec)} min.`;
 }
 
 async function showLeaderboard() {
@@ -1909,26 +2026,33 @@ async function loadSidebar() {
   // Desktop sidebar
   const sbTotal = document.getElementById('sb-total');
   if (sbTotal) sbTotal.textContent = totalStr;
+  const sbTotalM = document.getElementById('sb-total-mobile2');
+  if (sbTotalM) sbTotalM.textContent = totalStr;
 
   // Mini leaderboard (desktop)
   const miniEl = document.getElementById('sb-minilb');
-  if (miniEl) {
+  const miniElM = document.getElementById('sb-minilb-mobile');
+  [miniEl, miniElM].filter(Boolean).forEach(el => {
     if (!rows.length) {
-      miniEl.innerHTML = '<div class="mini-empty">No scores yet</div>';
+      el.innerHTML = '<div class="mini-empty">No scores yet</div>';
     } else {
       const emojis = ['🥇','🥈','🥉'];
-      miniEl.innerHTML = rows.slice(0,3).map((r,i) => `
+      el.innerHTML = rows.slice(0,3).map((r,i) => `
         <div class="mini-lb-row">
           <span class="mini-rank">${emojis[i]}</span>
-          <span class="mini-name">${r.player_name}</span>
+          <span class="mini-name">${truncateName(r.player_name)}</span>
           <span class="mini-time">${formatTime(r.time_seconds)}</span>
         </div>`).join('');
     }
-  }
+  });
 }
 
 function hideLB() {
   document.getElementById('lb-overlay').classList.remove('show');
+}
+
+function truncateName(name) {
+  return name.length > 12 ? name.slice(0, 12) + '…' : name;
 }
 
 function renderLB(rows) {
@@ -1958,7 +2082,7 @@ function renderLB(rows) {
     const rc = i < 3 ? rankClass[i] : '';
     const label = i < 3 ? rankEmoji[i] : (i + 1);
     html += `<tr>
-      <td><span class="lb-rank ${rc}">${label}</span>${r.player_name}</td>
+      <td><span class="lb-rank ${rc}">${label}</span>${truncateName(r.player_name)}</td>
       <td>${formatTime(r.time_seconds)}</td>
     </tr>`;
   });
@@ -1983,12 +2107,43 @@ async function submitScore() {
   const name = document.getElementById('player-name-input').value.trim();
   if (!name) { document.getElementById('player-name-input').focus(); return; }
   document.getElementById('name-overlay').classList.remove('show');
-  await insertScore(name, timerSeconds);
+  const qualified = await insertScore(name, timerSeconds);
+  if (qualified === false) {
+    // Not in top 6 — show a gentle toast
+    const el = document.getElementById('invalid-toast');
+    el.querySelector('svg').style.display = 'none';
+    el.childNodes[el.childNodes.length - 1].textContent = 'Great game! Score didn\'t make the top 6 this time.';
+    if (toastTimer) clearTimeout(toastTimer);
+    el.classList.remove('hide');
+    el.classList.add('show');
+    toastTimer = setTimeout(() => {
+      el.classList.remove('show');
+      el.classList.add('hide');
+      el.querySelector('svg').style.display = '';
+      el.childNodes[el.childNodes.length - 1].textContent = ' Invalid move. Please check the instructions.';
+      toastTimer = setTimeout(() => el.classList.remove('hide'), 320);
+    }, 3000);
+  }
 }
 
 function skipScore() {
   document.getElementById('name-overlay').classList.remove('show');
 }
+
+
+// ── Hamburger menu ───────────────────────────────────────────────────────────
+function toggleHamburger() {
+  document.getElementById('hamburger-menu').classList.toggle('open');
+}
+function closeHamburger() {
+  document.getElementById('hamburger-menu').classList.remove('open');
+}
+// Close on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('#hamburger-btn') && !e.target.closest('#hamburger-menu')) {
+    closeHamburger();
+  }
+});
 
 // ── Onboarding hint pulse ────────────────────────────────────────────────────
 let hintTimeout = null;
@@ -2010,13 +2165,13 @@ function showHints() {
       void el.offsetWidth; // force reflow to restart animation
       el.classList.add('hint');
       // Remove class after animation completes so it can re-trigger if called again
-      setTimeout(() => el.classList.remove('hint'), 850);
-    }, i * 350);
+      setTimeout(() => el.classList.remove('hint'), 1500);
+    }, i * 600);
     hintTimeout = t; // keep last timer ref for cancel
   });
 
   // Auto-clear flag after all animations done
-  const totalDuration = hintables.length * 350 + 900;
+  const totalDuration = hintables.length * 600 + 1600;
   hintTimeout = setTimeout(() => { hintsActive = false; }, totalDuration);
 }
 
@@ -2160,7 +2315,7 @@ function hideInstructions() {
 
 window.addEventListener('DOMContentLoaded', () => {
   resetGame();
-  document.getElementById('timer-display').classList.add('idle');
+  ['timer-display','timer-display-mobile'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('idle');});
   loadSidebar();
   // Show welcome screen first; hints fire after player dismisses it
   showWelcome();
