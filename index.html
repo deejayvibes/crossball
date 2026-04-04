@@ -1377,7 +1377,7 @@
     top: 0;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 14px;
     width: 288px;
     flex-shrink: 0;
   }
@@ -1883,7 +1883,31 @@
       </div>
       <div class="sidebar-card">
         <div class="sidebar-title">The Best 6 of All Time<br><span style="text-transform:none;color:#ffd700;">(<span class="sb-total-inline" id="sb-total-inline">—</span> Games)</span></div>
-        <div id="sb-minilb"><div class="mini-empty">Loading…</div></div>
+        <div id="sb-minilb"><div class="mini-lb-row">
+          <span class="mini-rank gold">🥇</span>
+          <span class="mini-name"><span class="lb-placeholder-bar" style="width:50px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+        </div><div class="mini-lb-row">
+          <span class="mini-rank silver">🥈</span>
+          <span class="mini-name"><span class="lb-placeholder-bar" style="width:60px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+        </div><div class="mini-lb-row">
+          <span class="mini-rank bronze">🥉</span>
+          <span class="mini-name"><span class="lb-placeholder-bar" style="width:70px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+        </div><div class="mini-lb-row" style="opacity:0.45;">
+          <span class="mini-rank ">4</span>
+          <span class="mini-name"><span class="lb-placeholder-bar" style="width:80px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+        </div><div class="mini-lb-row" style="opacity:0.45;">
+          <span class="mini-rank ">5</span>
+          <span class="mini-name"><span class="lb-placeholder-bar" style="width:90px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+        </div><div class="mini-lb-row" style="opacity:0.45;">
+          <span class="mini-rank ">6</span>
+          <span class="mini-name"><span class="lb-placeholder-bar" style="width:100px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+        </div></div>
       </div>
       <div class="sidebar-card">
         <div class="sidebar-title">Most Recent Finishers</div>
@@ -2302,9 +2326,26 @@ function formatTime(s) {
   return `${padZ(m)}:${padZ(sec)} min.`;
 }
 
+
+function lbSkeletonHTML() {
+  const rankEmoji = ['🥇','🥈','🥉'];
+  let html = '<table class="lb-table"><thead><tr><th>Player</th><th>Best Time</th></tr></thead><tbody>';
+  for (let i = 0; i < 6; i++) {
+    const rc = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const label = i < 3 ? rankEmoji[i] : (i + 1);
+    const dimStyle = i >= 3 ? ' style="opacity:0.45;"' : '';
+    html += `<tr${dimStyle}>
+      <td><span class="lb-rank ${rc}">${label}</span><span class="lb-placeholder-bar" style="width:${55 + i * 12}px;height:9px;border-radius:4px;display:inline-block;"></span></td>
+      <td><span class="lb-placeholder-bar" style="width:52px;height:9px;border-radius:4px;display:inline-block;float:right;"></span></td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  return html;
+}
+
 async function showLeaderboard() {
   document.getElementById('lb-overlay').classList.add('show');
-  document.getElementById('lb-content').innerHTML = '<div class="lb-loading">Loading…</div>';
+  document.getElementById('lb-content').innerHTML = lbSkeletonHTML();
   const [rows, stats, recentRows] = await Promise.all([fetchLeaderboard(), fetchStats(), fetchRecentPlayers()]);
   renderLB(rows);
   renderRecentPlayers(recentRows, 'sb-recent');
@@ -2349,6 +2390,11 @@ function formatCount(n) {
 }
 
 async function loadSidebar() {
+  // Show skeleton immediately while fetching
+  ['sb-minilb','sb-minilb-mobile'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<div class="mini-lb-row">          <span class="mini-rank gold">🥇</span>          <span class="mini-name"><span class="lb-placeholder-bar" style="width:50px;height:9px;border-radius:4px;display:inline-block;"></span></span>          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>        </div><div class="mini-lb-row">          <span class="mini-rank silver">🥈</span>          <span class="mini-name"><span class="lb-placeholder-bar" style="width:60px;height:9px;border-radius:4px;display:inline-block;"></span></span>          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>        </div><div class="mini-lb-row">          <span class="mini-rank bronze">🥉</span>          <span class="mini-name"><span class="lb-placeholder-bar" style="width:70px;height:9px;border-radius:4px;display:inline-block;"></span></span>          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>        </div><div class="mini-lb-row" style="opacity:0.45;">          <span class="mini-rank ">4</span>          <span class="mini-name"><span class="lb-placeholder-bar" style="width:80px;height:9px;border-radius:4px;display:inline-block;"></span></span>          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>        </div><div class="mini-lb-row" style="opacity:0.45;">          <span class="mini-rank ">5</span>          <span class="mini-name"><span class="lb-placeholder-bar" style="width:90px;height:9px;border-radius:4px;display:inline-block;"></span></span>          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>        </div><div class="mini-lb-row" style="opacity:0.45;">          <span class="mini-rank ">6</span>          <span class="mini-name"><span class="lb-placeholder-bar" style="width:100px;height:9px;border-radius:4px;display:inline-block;"></span></span>          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>        </div>';
+  });
   const [stats, rows, recentRows] = await Promise.all([fetchStats(), fetchLeaderboard(), fetchRecentPlayers()]);
 
   // Total completed = wins + losses (total_attempts tracks game-over events)
@@ -2624,7 +2670,7 @@ function renderRecentPlayers(rows, elId) {
       // Replace old "Guest 247"-style names with positional Guest Z/Y/X
       const letters = ['Z', 'Y', 'X'];
       const storedName = /^Guest\s+\d+$/.test(r.player_name) ? 'Guest ' + letters[i] : r.player_name;
-      const rawName = storedName.length > 9 ? storedName.slice(0, 9) + '…' : storedName;
+      const rawName = storedName.length > 12 ? storedName.slice(0, 12) + '…' : storedName;
       const marbleWord = r.marbles_left === 1 ? 'marble' : 'marbles';
       const nameMarbles = `${rawName} <span style="opacity:0.50;font-size:11px;">(${r.marbles_left} ${marbleWord})</span>`;
       const time = formatTime(r.time_seconds);
@@ -2914,7 +2960,7 @@ window.addEventListener('DOMContentLoaded', () => {
 <div class="lb-overlay" id="lb-overlay" onclick="if(event.target===this)hideLB()">
   <div class="lb-box">
     <h2>🏆 Leaderboard</h2>
-    <div id="lb-content"><div class="lb-loading">Loading…</div></div>
+    <div id="lb-content"></div>
     <!-- Mobile stats (hidden on desktop) -->
     <div class="lb-stats-mobile" id="lb-stats-mobile">
     </div>
