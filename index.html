@@ -371,9 +371,10 @@
   /* Reset button — plain text link, no box */
   .reset-btn {
     background: none;
-    border: none;
+    border: 1px solid rgba(224,200,128,0.40);
+    border-radius: 50px;
     box-shadow: none;
-    padding: 10px 0;
+    padding: 6px 18px;
     margin-top: 10px;
     color: #e0c880;
     font-size: 13px;
@@ -381,12 +382,13 @@
     text-decoration: none;
     cursor: pointer;
     opacity: 0.75;
-    transition: color 0.2s, opacity 0.2s;
+    transition: color 0.2s, opacity 0.2s, border-color 0.2s;
     display: block;
   }
   .reset-btn:hover {
     color: #fff;
     opacity: 1;
+    border-color: rgba(255,255,255,0.50);
   }
   .reset-btn:active {
     color: #fff0a0;
@@ -1558,7 +1560,7 @@
         </div>
       </div>
       <!-- Reset — plain text link below board -->
-      <button class="reset-btn reset-btn-tray inactive" onclick="resetGame()">Reset Board</button>
+      <button class="reset-btn reset-btn-tray inactive" onclick="resetGame()">Reset Game</button>
       <!-- Mobile stat panels — below reset -->
       <div class="mobile-stats">
         <div class="sidebar-card mobile-stat-card">
@@ -1593,7 +1595,7 @@
   <div class="tray-bank right" id="tray-right"></div>
 </div>
 <!-- Standalone reset for mobile (outside tray) -->
-<button class="reset-btn reset-btn-standalone inactive" onclick="resetGame()">Reset Board</button>
+<button class="reset-btn reset-btn-standalone inactive" onclick="resetGame()">Reset Game</button>
 
 <!-- Win confetti canvas -->
 <canvas id="confetti-canvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:102;display:none;"></canvas>
