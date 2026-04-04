@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0049)file:///Users/dhaneesh/Downloads/brainvita_5.html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cross+Ball</title>
 <style>
@@ -1033,25 +1033,439 @@
   }
 
 
-  /* ─── Onboarding hint pulse — valid first-move marbles ─── */
-  @keyframes hintPulse {
-    0%   { box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50),
-                       inset 0 -4px 8px rgba(0,0,0,0.60), inset 2px 2px 5px rgba(255,255,255,0.12),
-                       0 0 0 0px rgba(255,210,60,0.0),
-                       0 0 0px rgba(255,190,20,0.0); }
-    45%  { box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50),
-                       inset 0 -4px 8px rgba(0,0,0,0.60), inset 2px 2px 5px rgba(255,255,255,0.12),
-                       0 0 32px rgba(255,190,20,0.80),
-                       0 0 60px rgba(255,160,0,0.45); }
-    100% { box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50),
-                       inset 0 -4px 8px rgba(0,0,0,0.60), inset 2px 2px 5px rgba(255,255,255,0.12),
-                       0 0 0 0px rgba(255,210,60,0.0),
-                       0 0 0px rgba(255,190,20,0.0); }
+  /* ─── Onboarding hint — blue ring ripple, fires once per marble ─── */
+  @keyframes hintRing {
+    0%   {
+      box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50),
+                  inset 0 -4px 8px rgba(0,0,0,0.60), inset 2px 2px 5px rgba(255,255,255,0.12),
+                  0 0 0 0px rgba(80,160,255,0.0);
+      filter: brightness(1) saturate(1);
+    }
+    30%  {
+      box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50),
+                  inset 0 -4px 8px rgba(0,0,0,0.60), inset 2px 2px 5px rgba(255,255,255,0.12),
+                  0 0 0 6px rgba(80,160,255,0.90),
+                  0 0 20px rgba(60,140,255,0.70),
+                  0 0 40px rgba(40,120,255,0.35);
+      filter: brightness(1.30) saturate(1.15);
+    }
+    100% {
+      box-shadow: 4px 8px 18px rgba(0,0,0,0.70), 2px 4px 6px rgba(0,0,0,0.50),
+                  inset 0 -4px 8px rgba(0,0,0,0.60), inset 2px 2px 5px rgba(255,255,255,0.12),
+                  0 0 0 18px rgba(80,160,255,0.0),
+                  0 0 0px rgba(60,140,255,0.0);
+      filter: brightness(1) saturate(1);
+    }
   }
   .marble.hint {
-    animation: hintPulse 1.0s ease-in-out 4;
-    /* Also brighten the marble itself slightly */
-    filter: brightness(1.35) saturate(1.2);
+    animation: hintRing 0.80s ease-out 1 forwards;
+  }
+
+
+  /* ─── Leaderboard button in topbar ─── */
+  .leaderboard-btn {
+    background: none; border: none;
+    color: #c8a858; font-family: Georgia, serif;
+    font-size: 14px; letter-spacing: 0.5px;
+    cursor: pointer; padding: 0 0 0 16px;
+    text-decoration: none;
+    opacity: 0.85;
+    transition: color 0.2s, opacity 0.2s;
+  }
+  .leaderboard-btn:hover { color: #f0d878; opacity: 1; }
+
+  /* ─── Leaderboard overlay ─── */
+  .lb-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.78);
+    z-index: 200; align-items: center; justify-content: center;
+  }
+  .lb-overlay.show { display: flex; }
+  .lb-box {
+    background: linear-gradient(160deg, #1a1208 0%, #120e06 100%);
+    border: 2px solid rgba(200,168,60,0.40);
+    border-radius: 14px;
+    padding: 32px 40px 28px;
+    width: 420px; max-width: calc(100vw - 32px);
+    box-shadow:
+      0 24px 60px rgba(0,0,0,0.85),
+      inset 0 1px 0 rgba(255,215,0,0.12);
+    position: relative;
+  }
+  .lb-box h2 {
+    font-family: Georgia, serif;
+    font-size: 20px; color: #f0d060;
+    text-align: center; margin-bottom: 20px;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(200,168,60,0.20);
+    padding-bottom: 12px;
+    text-shadow: 0 2px 8px rgba(200,150,0,0.40);
+  }
+  .lb-table {
+    width: 100%; border-collapse: collapse;
+    font-family: Georgia, serif;
+  }
+  .lb-table th {
+    font-size: 11px; letter-spacing: 2px;
+    color: rgba(200,168,60,0.55); text-transform: uppercase;
+    padding: 0 0 10px; text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .lb-table th:last-child { text-align: right; }
+  .lb-table td {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 14px; color: #d0b880;
+    vertical-align: middle;
+  }
+  .lb-table td:last-child { text-align: right; color: #a8c870; font-size: 13px; }
+  .lb-table tr:last-child td { border-bottom: none; }
+  .lb-rank {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%;
+    font-size: 12px; font-weight: bold; margin-right: 10px;
+    background: rgba(255,215,0,0.10);
+    color: rgba(255,215,0,0.60);
+    border: 1px solid rgba(255,215,0,0.20);
+    flex-shrink: 0;
+  }
+  .lb-rank.gold   { background: rgba(255,200,0,0.25); color: #ffd700; border-color: rgba(255,200,0,0.50); }
+  .lb-rank.silver { background: rgba(180,180,200,0.20); color: #c0c0c0; border-color: rgba(180,180,200,0.40); }
+  .lb-rank.bronze { background: rgba(180,100,40,0.25); color: #cd7f32; border-color: rgba(180,100,40,0.50); }
+  /* ─── Leaderboard empty state placeholders ─── */
+  @keyframes shimmerSlide {
+    0%   { background-position: -200px 0; }
+    100% { background-position: 200px 0; }
+  }
+  .lb-placeholder-bar {
+    display: inline-block;
+    height: 10px;
+    border-radius: 5px;
+    background: linear-gradient(90deg,
+      rgba(200,168,60,0.08) 0px,
+      rgba(200,168,60,0.20) 80px,
+      rgba(200,168,60,0.08) 160px);
+    background-size: 400px 100%;
+    animation: shimmerSlide 1.6s ease-in-out infinite;
+    vertical-align: middle;
+  }
+  .lb-placeholder-row td { opacity: 0.55; }
+  .lb-empty-msg {
+    text-align: center;
+    font-family: Georgia, serif;
+    font-size: 12px;
+    color: rgba(200,168,60,0.40);
+    margin-top: 14px;
+    letter-spacing: 0.3px;
+    font-style: italic;
+  }
+  .lb-loading {
+    text-align: center; color: rgba(200,168,60,0.40);
+    font-size: 13px; padding: 20px 0;
+  }
+  .lb-close {
+    display: block; width: 100%; margin-top: 20px;
+    padding: 10px;
+    background: linear-gradient(180deg, #3a2810 0%, #281c08 100%);
+    color: #c8a858; border: 1px solid rgba(200,168,60,0.30);
+    font-size: 13px; letter-spacing: 1px;
+    cursor: pointer; border-radius: 7px;
+    font-family: Georgia, serif;
+  }
+  .lb-close:hover { background: linear-gradient(180deg, #4a3418 0%, #382410 100%); color: #f0d060; }
+
+  /* ─── Name entry overlay (shown on win before leaderboard submit) ─── */
+  .name-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.78);
+    z-index: 202; align-items: center; justify-content: center;
+  }
+  .name-overlay.show { display: flex; }
+  .name-box {
+    background: linear-gradient(160deg, #1a1208 0%, #120e06 100%);
+    border: 2px solid rgba(255,215,0,0.35);
+    border-radius: 14px;
+    padding: 32px 36px 28px;
+    width: 360px; max-width: calc(100vw - 32px);
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.85);
+  }
+  .name-box h2 {
+    font-family: Georgia, serif; font-size: 18px;
+    color: #f0d060; margin-bottom: 8px; letter-spacing: 0.5px;
+  }
+  .name-box p {
+    font-family: Georgia, serif; font-size: 13px;
+    color: #a8a070; margin-bottom: 20px;
+  }
+  .name-input {
+    width: 100%; padding: 10px 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(200,168,60,0.40);
+    border-radius: 7px; color: #f0d878;
+    font-family: Georgia, serif; font-size: 15px;
+    outline: none; box-sizing: border-box;
+    text-align: center; letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  .name-input:focus { border-color: rgba(255,215,0,0.70); }
+  .name-submit {
+    width: 100%; padding: 11px;
+    background: linear-gradient(135deg, #ffd93d 0%, #ff9500 100%);
+    color: #1a1208; border: none;
+    font-size: 14px; font-weight: bold;
+    font-family: Georgia, serif; letter-spacing: 1px;
+    cursor: pointer; border-radius: 7px;
+    box-shadow: 0 4px 16px rgba(255,200,0,0.35);
+  }
+  .name-submit:hover { background: linear-gradient(135deg, #ffe85a 0%, #ffa520 100%); }
+  .name-skip {
+    background: none; border: none;
+    color: rgba(200,168,60,0.45); font-size: 12px;
+    font-family: Georgia, serif; cursor: pointer;
+    margin-top: 12px; display: block; width: 100%;
+    letter-spacing: 0.5px;
+  }
+  .name-skip:hover { color: rgba(200,168,60,0.70); }
+
+  @media (max-width: 999px) {
+    .lb-box { padding: 24px 20px 20px; }
+    .lb-box h2 { font-size: 17px; }
+    .lb-table td { font-size: 13px; }
+  }
+
+
+  /* ─── Welcome / Name Entry Screen ─── */
+  .welcome-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 300; align-items: center; justify-content: center;
+  }
+  .welcome-overlay.show { display: flex; }
+  .welcome-box {
+    background: linear-gradient(160deg, #1e1408 0%, #140e04 100%);
+    border: 2px solid rgba(200,168,60,0.40);
+    border-radius: 16px;
+    padding: 36px 40px 30px;
+    width: 380px; max-width: calc(100vw - 32px);
+    text-align: center;
+    box-shadow:
+      0 30px 80px rgba(0,0,0,0.90),
+      inset 0 1px 0 rgba(255,215,0,0.12);
+    position: relative;
+    overflow: hidden;
+  }
+  /* Top shimmer line */
+  .welcome-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #ff6b6b);
+    background-size: 300% 100%;
+    animation: shimmer 2.5s linear infinite;
+  }
+  .welcome-logo {
+    font-size: 28px; font-weight: 900;
+    font-family: Georgia, serif;
+    letter-spacing: 3px;
+    color: #2a1a08;
+    text-shadow:
+      -0.5px -0.5px 0px rgba(180,130,60,0.60),
+      0.5px 0.5px 1px rgba(0,0,0,0.90),
+      1px 1px 3px rgba(0,0,0,0.70),
+      0 0 12px rgba(120,60,10,0.30);
+    margin-bottom: 48px;
+  }
+  .welcome-logo span {
+    color: #1e1008;
+    text-shadow:
+      -0.5px -0.5px 0px rgba(160,110,50,0.55),
+      0.5px 0.5px 1px rgba(0,0,0,0.95),
+      1px 1px 3px rgba(0,0,0,0.75);
+  }
+  .welcome-tagline {
+    font-family: Georgia, serif;
+    font-size: 12px; color: rgba(200,168,60,0.50);
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .welcome-label {
+    font-family: Georgia, serif;
+    font-size: 14px; color: #d0b060;
+    margin-bottom: 10px; display: block;
+  }
+  .welcome-input {
+    width: 100%; padding: 11px 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(200,168,60,0.35);
+    border-radius: 8px; color: #f0d878;
+    font-family: Georgia, serif; font-size: 16px;
+    outline: none; box-sizing: border-box;
+    text-align: center; letter-spacing: 2px;
+    margin-bottom: 6px;
+    transition: border-color 0.2s;
+  }
+  .welcome-input:focus { border-color: rgba(255,215,0,0.65); }
+  .welcome-charlimit {
+    font-family: Georgia, serif;
+    font-size: 11px; color: rgba(200,168,60,0.35);
+    margin-bottom: 18px; display: block;
+    letter-spacing: 0.5px;
+  }
+  .welcome-play {
+    width: 100%; padding: 12px;
+    background: linear-gradient(135deg, #ffd93d 0%, #ff9500 100%);
+    color: #1a1208; border: none;
+    font-size: 15px; font-weight: bold;
+    font-family: Georgia, serif; letter-spacing: 1.5px;
+    cursor: pointer; border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(255,200,0,0.40),
+                inset 0 1px 0 rgba(255,255,255,0.35);
+    margin-bottom: 12px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .welcome-play:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255,200,0,0.55),
+                inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .welcome-guest {
+    width: 100%; padding: 11px;
+    background: transparent;
+    border: 1px solid rgba(200,168,60,0.35);
+    border-radius: 50px;
+    color: rgba(200,168,60,0.70);
+    font-size: 14px; font-family: Georgia, serif;
+    letter-spacing: 1px; cursor: pointer;
+    display: block;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .welcome-guest:hover {
+    border-color: rgba(200,168,60,0.65);
+    color: #f0d060;
+    background: rgba(200,168,60,0.06);
+  }
+  .welcome-error {
+    font-family: Georgia, serif;
+    font-size: 12px; color: #f07050;
+    min-height: 16px; margin-bottom: 10px;
+    display: block;
+  }
+
+  @media (max-width: 999px) {
+    .welcome-box { padding: 28px 22px 22px; }
+    .welcome-logo { font-size: 22px; }
+  }
+
+
+  /* ─── Stats sidebar (desktop only) ─── */
+  .game-area {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 32px;
+    width: 100%;
+    flex: 1;
+  }
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 200px;
+    flex-shrink: 0;
+    padding-top: 18px; /* align with board top */
+  }
+  .sidebar-card {
+    background: linear-gradient(160deg, rgba(30,20,8,0.82) 0%, rgba(18,14,4,0.88) 100%);
+    border: 1px solid rgba(200,168,60,0.28);
+    border-radius: 10px;
+    padding: 16px 18px;
+    box-shadow:
+      0 4px 16px rgba(0,0,0,0.50),
+      inset 0 1px 0 rgba(255,215,0,0.08);
+  }
+  .sidebar-title {
+    font-family: Georgia, serif;
+    font-size: 9px; letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(200,168,60,0.50);
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(200,168,60,0.14);
+    padding-bottom: 8px;
+  }
+  .stats-number {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: 34px;
+    color: #d4c040;
+    line-height: 1;
+    text-shadow:
+      0 0 8px rgba(255,220,80,0.50),
+      0 0 20px rgba(255,190,0,0.25);
+    margin-bottom: 2px;
+  }
+  .stats-sublabel {
+    font-family: Georgia, serif;
+    font-size: 11px;
+    color: rgba(200,168,60,0.40);
+    letter-spacing: 0.3px;
+  }
+  /* Top 3 mini leaderboard */
+  .mini-lb-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-family: Georgia, serif;
+  }
+  .mini-lb-row:last-child { border-bottom: none; }
+  .mini-rank {
+    font-size: 14px; flex-shrink: 0; width: 20px; text-align: center;
+  }
+  .mini-name {
+    font-size: 12px; color: #d0b880;
+    flex: 1; overflow: hidden;
+    white-space: nowrap; text-overflow: ellipsis;
+  }
+  .mini-time {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; color: #a8c870;
+    flex-shrink: 0;
+  }
+  .mini-empty {
+    font-size: 11px; color: rgba(200,168,60,0.30);
+    font-style: italic; text-align: center;
+    padding: 8px 0;
+  }
+  /* Skeleton shimmer for sidebar */
+  .mini-placeholder {
+    height: 9px; border-radius: 4px;
+    background: linear-gradient(90deg,
+      rgba(200,168,60,0.07) 0px,
+      rgba(200,168,60,0.18) 80px,
+      rgba(200,168,60,0.07) 160px);
+    background-size: 300px 100%;
+    animation: shimmerSlide 1.6s ease-in-out infinite;
+  }
+
+  /* On mobile: sidebar hidden, stats shown inside leaderboard */
+  @media (max-width: 999px) {
+    .game-area {
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .sidebar { display: none; }
+    .lb-stats-mobile {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(200,168,60,0.15);
+    }
+    .lb-stats-mobile .sidebar-title { margin-bottom: 8px; }
+    .lb-stats-mobile .stats-number { font-size: 28px; }
+  }
+  @media (min-width: 1000px) {
+    .lb-stats-mobile { display: none; }
   }
 
 </style>
@@ -1061,31 +1475,50 @@
 <!-- Top bar -->
 <div class="topbar">
   <div class="logo"><span class="box">C</span>ross<span class="cross">+</span>Ball</div>
-  <button class="instructions-btn" onclick="showInstructions()">Instructions</button>
+  <div style="display:flex;align-items:center;gap:32px;">
+    <button class="leaderboard-btn" onclick="showLeaderboard()">🏆 Leaderboard</button>
+    <button class="instructions-btn" onclick="showInstructions()">Instructions</button>
+  </div>
 </div>
 <!-- Invalid move banner — slides in below header -->
 <div class="toast" id="invalid-toast">
   <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-    <circle cx="8" cy="8" r="7.5" stroke="#e05030" stroke-width="1.2"></circle>
-    <line x1="8" y1="4.5" x2="8" y2="9" stroke="#e05030" stroke-width="1.8" stroke-linecap="round"></line>
-    <circle cx="8" cy="11.5" r="0.9" fill="#e05030"></circle>
+    <circle cx="8" cy="8" r="7.5" stroke="#e05030" stroke-width="1.2"/>
+    <line x1="8" y1="4.5" x2="8" y2="9" stroke="#e05030" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="8" cy="11.5" r="0.9" fill="#e05030"/>
   </svg>
   Invalid move. Please check the instructions.
 </div>
 <!-- Main board area -->
 <div class="main">
-  <div class="board-wrap">
-    <div class="board-inner">
-      <div class="board" id="board"><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell light"><div class="marble" data-r="0" data-c="2"></div></div><div class="cell dark"><div class="marble" data-r="0" data-c="3"></div></div><div class="cell light"><div class="marble" data-r="0" data-c="4"></div></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell dark"><div class="marble" data-r="1" data-c="2"></div></div><div class="cell light"><div class="marble" data-r="1" data-c="3"></div></div><div class="cell dark"><div class="marble" data-r="1" data-c="4"></div></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell light"><div class="marble" data-r="2" data-c="0"></div></div><div class="cell dark"><div class="marble" data-r="2" data-c="1"></div></div><div class="cell light"><div class="marble" data-r="2" data-c="2"></div></div><div class="cell dark"><div class="marble" data-r="2" data-c="3"></div></div><div class="cell light"><div class="marble" data-r="2" data-c="4"></div></div><div class="cell dark"><div class="marble" data-r="2" data-c="5"></div></div><div class="cell light"><div class="marble" data-r="2" data-c="6"></div></div><div class="cell dark"><div class="marble" data-r="3" data-c="0"></div></div><div class="cell light"><div class="marble" data-r="3" data-c="1"></div></div><div class="cell dark"><div class="marble" data-r="3" data-c="2"></div></div><div class="cell light"><div class="marble" data-r="3" data-c="3"></div></div><div class="cell dark"><div class="hole"></div></div><div class="cell light"><div class="hole"></div></div><div class="cell dark"><div class="marble" data-r="3" data-c="6"></div></div><div class="cell light"><div class="marble" data-r="4" data-c="0"></div></div><div class="cell dark"><div class="marble" data-r="4" data-c="1"></div></div><div class="cell light"><div class="marble" data-r="4" data-c="2"></div></div><div class="cell dark"><div class="marble" data-r="4" data-c="3"></div></div><div class="cell light"><div class="marble" data-r="4" data-c="4"></div></div><div class="cell dark"><div class="marble" data-r="4" data-c="5"></div></div><div class="cell light"><div class="marble" data-r="4" data-c="6"></div></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell dark"><div class="marble" data-r="5" data-c="2"></div></div><div class="cell light"><div class="marble" data-r="5" data-c="3"></div></div><div class="cell dark"><div class="marble" data-r="5" data-c="4"></div></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell inactive"></div><div class="cell light"><div class="marble" data-r="6" data-c="2"></div></div><div class="cell dark"><div class="marble" data-r="6" data-c="3"></div></div><div class="cell light"><div class="marble" data-r="6" data-c="4"></div></div><div class="cell inactive"></div><div class="cell inactive"></div></div>
+  <div class="game-area">
+    <!-- Board + timer stacked -->
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div class="board-wrap">
+        <div class="board-inner">
+          <div class="board" id="board"></div>
+        </div>
+      </div>
+      <!-- Casio-style timer -->
+      <div class="timer-wrap" id="timer-wrap">
+        <div class="timer-bezel">
+          <div class="timer-screen">
+            <div class="timer-label">ELAPSED TIME</div>
+            <div class="timer-display" id="timer-display">00:00:00</div>
+            <div class="timer-sublabel">HH &nbsp; MM &nbsp; SS</div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <!-- Casio-style timer -->
-  <div class="timer-wrap" id="timer-wrap">
-    <div class="timer-bezel">
-      <div class="timer-screen">
-        <div class="timer-label">ELAPSED TIME</div>
-        <div class="timer-display" id="timer-display">00:01:10</div>
-        <div class="timer-sublabel">HH &nbsp; MM &nbsp; SS</div>
+    <!-- Right sidebar: stats + mini leaderboard (desktop only) -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-title">Total Games Played</div>
+        <div class="stats-number" id="sb-total">—</div>
+      </div>
+      <div class="sidebar-card">
+        <div class="sidebar-title">🏆 Top 3 Players</div>
+        <div id="sb-minilb"><div class="mini-empty">Loading…</div></div>
       </div>
     </div>
   </div>
@@ -1093,12 +1526,12 @@
 
 <!-- Bottom tray -->
 <div class="tray-outer">
-  <div class="tray-bank left" id="tray-left"><div class="tray-slot"><div class="tray-marble"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div></div>
-  <button class="reset-btn reset-btn-tray" onclick="resetGame()">Reset</button>
-  <div class="tray-bank right" id="tray-right"><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div><div class="tray-slot"><div class="tray-hole"></div></div></div>
+  <div class="tray-bank left"  id="tray-left"></div>
+  <button class="reset-btn reset-btn-tray inactive" onclick="resetGame()">Reset</button>
+  <div class="tray-bank right" id="tray-right"></div>
 </div>
 <!-- Standalone reset for mobile (outside tray) -->
-<button class="reset-btn reset-btn-standalone" onclick="resetGame()">Reset</button>
+<button class="reset-btn reset-btn-standalone inactive" onclick="resetGame()">Reset</button>
 
 <!-- Win confetti canvas -->
 <canvas id="confetti-canvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:102;display:none;"></canvas>
@@ -1317,22 +1750,274 @@ function renderTray() {
 
 
 
+
+
+// ── Profanity filter + welcome screen ────────────────────────────────────────
+// Common abusive words across English, Hindi (transliterated), and other languages
+const PROFANITY_LIST = [
+  // English
+  'fuck','shit','ass','bitch','bastard','cunt','dick','cock','pussy','whore',
+  'slut','nigger','nigga','faggot','fag','retard','rape','crap','damn','hell',
+  'piss','prick','twat','wank','asshole','arsehole','motherfucker','bullshit',
+  // Hindi transliterated
+  'madarchod','behenchod','bhosdike','bhosdi','chutiya','chutiye','gandu','randi',
+  'harami','saala','gaand','lauda','lavda','bhen','mc','bc','lund','maa ki',
+  'teri maa','bsdk','maderchod','benchod','chodu','bhenchod','bhosdika',
+  // Other common
+  'merde','scheisse','scheiße','puta','hijo','cabron','cabrón','coño','joder',
+  'putain','connard','salope','vaffanculo','cazzo','stronzo','culo',
+  'kus','orospu','siktir','amk','yarrak','götü','pizda','blyad','suka',
+  'kurwa','hure','fotze','wichser','arschloch'
+];
+
+function containsProfanity(name) {
+  const lower = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return PROFANITY_LIST.some(word => lower.includes(word.replace(/[^a-z0-9]/g, '')));
+}
+
+function maskName(name) {
+  return name[0] + '*'.repeat(name.length - 1);
+}
+
+let currentPlayerName = 'Guest';
+
+function showWelcome() {
+  document.getElementById('welcome-overlay').classList.add('show');
+  setTimeout(() => document.getElementById('welcome-input').focus(), 200);
+}
+
+function startWithName() {
+  const input = document.getElementById('welcome-input');
+  const errEl = document.getElementById('welcome-error');
+  const raw = input.value.trim();
+
+  if (!raw) {
+    errEl.textContent = 'Please enter a name or continue as Guest.';
+    input.focus();
+    return;
+  }
+  if (raw.length > 12) {
+    errEl.textContent = 'Max 12 characters allowed.';
+    input.focus();
+    return;
+  }
+
+  errEl.textContent = '';
+  currentPlayerName = containsProfanity(raw) ? maskName(raw) : raw;
+  document.getElementById('welcome-overlay').classList.remove('show');
+  setTimeout(showHints, 400);
+}
+
+function startAsGuest() {
+  currentPlayerName = 'Guest';
+  document.getElementById('welcome-error').textContent = '';
+  document.getElementById('welcome-overlay').classList.remove('show');
+  setTimeout(showHints, 400);
+}
+
+// Also enforce maxlength + live feedback
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('welcome-input');
+  if (inp) {
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') startWithName(); });
+  }
+});
+
+// ── Supabase leaderboard ─────────────────────────────────────────────────────
+const SB_URL = "https://uodxsqkgyzmuxrvgllws.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvZHhzcWtneXptdXhydmdsbHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNTU4OTgsImV4cCI6MjA5MDgzMTg5OH0.GkizKsf24EUZeqJyPhLXyUO2KjHw89tXBkKkFN0U2j0";
+
+function sbHeaders() {
+  return {
+    "Content-Type": "application/json",
+    "apikey": SB_KEY,
+    "Authorization": "Bearer " + SB_KEY
+  };
+}
+
+async function fetchLeaderboard() {
+  const res = await fetch(
+    SB_URL + "/rest/v1/leaderboard?select=player_name,time_seconds,created_at&order=time_seconds.asc,created_at.desc&limit=6",
+    { headers: sbHeaders() }
+  );
+  return res.ok ? await res.json() : [];
+}
+
+async function insertScore(name, seconds) {
+  await fetch(SB_URL + "/rest/v1/leaderboard", {
+    method: "POST",
+    headers: { ...sbHeaders(), "Prefer": "return=minimal" },
+    body: JSON.stringify({ player_name: name, time_seconds: seconds })
+  });
+}
+
+function formatTime(s) {
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  if (h > 0) return `${padZ(h)}:${padZ(m)}:${padZ(sec)}`;
+  return `${padZ(m)}:${padZ(sec)}`;
+}
+
+async function showLeaderboard() {
+  document.getElementById('lb-overlay').classList.add('show');
+  document.getElementById('lb-content').innerHTML = '<div class="lb-loading">Loading…</div>';
+  const [rows, stats] = await Promise.all([fetchLeaderboard(), fetchStats()]);
+  renderLB(rows);
+  // Mobile stats
+  const total = stats ? (stats.total_completions + stats.total_attempts) : 0;
+  const mobileEl = document.getElementById('lb-total-mobile');
+  if (mobileEl) mobileEl.textContent = total > 0 ? formatCount(total) : '0';
+}
+
+
+async function fetchStats() {
+  const res = await fetch(
+    SB_URL + "/rest/v1/game_stats?select=total_attempts,total_completions&id=eq.1",
+    { headers: sbHeaders() }
+  );
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data[0] || null;
+}
+
+async function incrementAttempts() {
+  await fetch(SB_URL + "/rest/v1/rpc/increment_attempts", {
+    method: "POST", headers: sbHeaders(), body: "{}"
+  });
+}
+
+async function incrementCompletions() {
+  await fetch(SB_URL + "/rest/v1/rpc/increment_completions", {
+    method: "POST", headers: sbHeaders(), body: "{}"
+  });
+}
+
+function formatCount(n) {
+  if (n < 1000) return n.toString();
+  const tenths = Math.floor(n / 100);
+  const k = (tenths / 10).toFixed(1).replace(/\.0$/, '');
+  return k + 'k+';
+}
+
+async function loadSidebar() {
+  const [stats, rows] = await Promise.all([fetchStats(), fetchLeaderboard()]);
+
+  // Total completed = wins + losses (total_attempts tracks game-over events)
+  const total = stats ? (stats.total_completions + stats.total_attempts) : 0;
+
+  const totalStr = total > 0 ? formatCount(total) : '0';
+
+  // Desktop sidebar
+  const sbTotal = document.getElementById('sb-total');
+  if (sbTotal) sbTotal.textContent = totalStr;
+
+  // Mini leaderboard (desktop)
+  const miniEl = document.getElementById('sb-minilb');
+  if (miniEl) {
+    if (!rows.length) {
+      miniEl.innerHTML = '<div class="mini-empty">No scores yet</div>';
+    } else {
+      const emojis = ['🥇','🥈','🥉'];
+      miniEl.innerHTML = rows.slice(0,3).map((r,i) => `
+        <div class="mini-lb-row">
+          <span class="mini-rank">${emojis[i]}</span>
+          <span class="mini-name">${r.player_name}</span>
+          <span class="mini-time">${formatTime(r.time_seconds)}</span>
+        </div>`).join('');
+    }
+  }
+}
+
+function hideLB() {
+  document.getElementById('lb-overlay').classList.remove('show');
+}
+
+function renderLB(rows) {
+  if (!rows.length) {
+    const rankEmoji = ['🥇','🥈','🥉'];
+    let html = '<table class="lb-table"><thead><tr><th>Player</th><th>Best Time</th></tr></thead><tbody>';
+    for (let i = 0; i < 6; i++) {
+      const label = i < 3 ? rankEmoji[i] : (i + 1);
+      const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+      html += `<tr class="lb-placeholder-row">
+        <td>
+          <span class="lb-rank ${rankClass}">${label}</span>
+          <span class="lb-placeholder-bar" style="width:${60 + Math.floor(Math.random()*50)}px"></span>
+        </td>
+        <td><span class="lb-placeholder-bar" style="width:48px;display:inline-block;float:right"></span></td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+    html += '<div class="lb-empty-msg">No scores yet — be the first! 🎯</div>';
+    document.getElementById('lb-content').innerHTML = html;
+    return;
+  }
+  const rankClass = ['gold','silver','bronze'];
+  const rankEmoji = ['🥇','🥈','🥉'];
+  let html = '<table class="lb-table"><thead><tr><th>Player</th><th>Best Time</th></tr></thead><tbody>';
+  rows.forEach((r, i) => {
+    const rc = i < 3 ? rankClass[i] : '';
+    const label = i < 3 ? rankEmoji[i] : (i + 1);
+    html += `<tr>
+      <td><span class="lb-rank ${rc}">${label}</span>${r.player_name}</td>
+      <td>${formatTime(r.time_seconds)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('lb-content').innerHTML = html;
+}
+
+// Called after win — show name entry dialog
+function promptName() {
+  const h = Math.floor(timerSeconds/3600), m = Math.floor((timerSeconds%3600)/60), s = timerSeconds%60;
+  const parts = [];
+  if (h > 0) parts.push(h + 'h');
+  if (m > 0 || h > 0) parts.push(m + 'm');
+  parts.push(s + 's');
+  document.getElementById('name-time-display').textContent = 'Your time: ' + parts.join(' ') + ' ⏱';
+  document.getElementById('player-name-input').value = currentPlayerName !== 'Guest' ? currentPlayerName : '';
+  document.getElementById('name-overlay').classList.add('show');
+  setTimeout(() => document.getElementById('player-name-input').focus(), 100);
+}
+
+async function submitScore() {
+  const name = document.getElementById('player-name-input').value.trim();
+  if (!name) { document.getElementById('player-name-input').focus(); return; }
+  document.getElementById('name-overlay').classList.remove('show');
+  await insertScore(name, timerSeconds);
+}
+
+function skipScore() {
+  document.getElementById('name-overlay').classList.remove('show');
+}
+
 // ── Onboarding hint pulse ────────────────────────────────────────────────────
 let hintTimeout = null;
 let hintsActive = false;
 
 function showHints() {
   hintsActive = true;
-  // Find all marbles that have at least one valid first move
-  const marbleEls = document.querySelectorAll('.marble[data-r]');
-  marbleEls.forEach(el => {
+  const marbleEls = [...document.querySelectorAll('.marble[data-r]')];
+  const hintables = marbleEls.filter(el => {
     const r = parseInt(el.dataset.r), c = parseInt(el.dataset.c);
-    if (getPossibleMoves(r, c).length > 0) {
-      el.classList.add('hint');
-    }
+    return getPossibleMoves(r, c).length > 0;
   });
-  // Auto-clear after 3 pulses (~3.3s)
-  hintTimeout = setTimeout(clearHints, 4200);
+
+  // Fire each marble's ring one-by-one, 350ms apart
+  hintables.forEach((el, i) => {
+    const t = setTimeout(() => {
+      if (!hintsActive) return;
+      el.classList.remove('hint');
+      void el.offsetWidth; // force reflow to restart animation
+      el.classList.add('hint');
+      // Remove class after animation completes so it can re-trigger if called again
+      setTimeout(() => el.classList.remove('hint'), 850);
+    }, i * 350);
+    hintTimeout = t; // keep last timer ref for cancel
+  });
+
+  // Auto-clear flag after all animations done
+  const totalDuration = hintables.length * 350 + 900;
+  hintTimeout = setTimeout(() => { hintsActive = false; }, totalDuration);
 }
 
 function clearHints() {
@@ -1442,10 +2127,13 @@ function checkGameState() {
     document.getElementById('overlay').classList.add('show');
     launchConfetti();
     stopTimer();
+    setTimeout(promptName, 1200);
+    incrementCompletions().then(loadSidebar);
   } else if (!hasAnyMove()) {
     document.getElementById('gameover-msg').textContent = `${n} marble${n!==1?'s':''} left — no moves available.`;
     document.getElementById('gameover-overlay').classList.add('show');
     stopTimer();
+    incrementAttempts().then(loadSidebar);
   }
 }
 
@@ -1473,7 +2161,9 @@ function hideInstructions() {
 window.addEventListener('DOMContentLoaded', () => {
   resetGame();
   document.getElementById('timer-display').classList.add('idle');
-  setTimeout(showHints, 600);
+  loadSidebar();
+  // Show welcome screen first; hints fire after player dismisses it
+  showWelcome();
 });
 
 
@@ -1506,5 +2196,46 @@ window.addEventListener('DOMContentLoaded', () => {
 </div>
 
 
+<!-- Leaderboard overlay -->
+<div class="lb-overlay" id="lb-overlay" onclick="if(event.target===this)hideLB()">
+  <div class="lb-box">
+    <h2>🏆 Leaderboard</h2>
+    <div id="lb-content"><div class="lb-loading">Loading…</div></div>
+    <!-- Mobile stats (hidden on desktop) -->
+    <div class="lb-stats-mobile" id="lb-stats-mobile">
+      <div class="sidebar-title">Total Games Played</div>
+      <div class="stats-number" id="lb-total-mobile">—</div>
+      <div class="stats-sublabel" style="margin-bottom:4px;"></div>
+    </div>
+    <button class="lb-close" onclick="hideLB()">Close</button>
+  </div>
+</div>
 
-</body></html>
+<!-- Name entry overlay -->
+<div class="name-overlay" id="name-overlay">
+  <div class="name-box">
+    <h2>You solved it!</h2>
+    <p id="name-time-display"></p>
+    <input class="name-input" id="player-name-input" type="text"
+           maxlength="12" placeholder="Enter your name" autocomplete="off" />
+    <button class="name-submit" onclick="submitScore()">Save to Leaderboard</button>
+    <button class="name-skip" onclick="skipScore()">Skip</button>
+  </div>
+</div>
+
+
+<!-- Welcome / Name Entry Overlay -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-box">
+    <div class="welcome-logo">Cross<span>+</span>Ball</div>
+    <label class="welcome-label" for="welcome-input">What shall we call you?</label>
+    <input class="welcome-input" id="welcome-input" type="text"
+           maxlength="12" placeholder="Your name" autocomplete="off" />
+    <span class="welcome-error" id="welcome-error"></span>
+    <button class="welcome-play" onclick="startWithName()">Play</button>
+    <button class="welcome-guest" onclick="startAsGuest()">Continue as Guest</button>
+  </div>
+</div>
+
+</body>
+</html>
