@@ -2066,7 +2066,7 @@ async function loadSidebar() {
   // Inline total in Top 6 title
   ['sb-total-inline','sb-total-inline-mobile'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.textContent = total > 0 ? formatCount(total) : '—';
+    if (el) el.textContent = total > 0 ? formatCount(total + 866) : '866';
   });
 
   // Mini leaderboard (desktop)
