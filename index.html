@@ -1467,44 +1467,8 @@
   }
 
 
-  /* ─── Hamburger menu (mobile only) ─── */
-  .hamburger-btn {
-    display: none;
-    flex-direction: column;
-    gap: 5px;
-    background: none; border: none;
-    cursor: pointer; padding: 4px;
-  }
-  .hamburger-btn span {
-    display: block; width: 22px; height: 2px;
-    background: #c8a858; border-radius: 2px;
-    transition: 0.2s;
-  }
-  .hamburger-menu {
-    display: none;
-    position: absolute;
-    top: 100%; right: 0;
-    background: linear-gradient(160deg, #2a1c08 0%, #1a1004 100%);
-    border: 1px solid rgba(200,168,60,0.30);
-    border-radius: 0 0 10px 10px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.60);
-    z-index: 150;
-    min-width: 180px;
-    overflow: hidden;
-  }
-  .hamburger-menu.open { display: block; }
-  .ham-item {
-    display: block; width: 100%;
-    background: none; border: none;
-    padding: 14px 20px;
-    text-align: left;
-    font-family: Georgia, serif;
-    font-size: 14px; color: #d0b878;
-    cursor: pointer; letter-spacing: 0.5px;
-    border-bottom: 1px solid rgba(200,168,60,0.12);
-  }
-  .ham-item:last-child { border-bottom: none; }
-  .ham-item:hover { background: rgba(200,168,60,0.08); color: #f0d060; }
+
+  
 
   /* ─── Mobile stat panels below board ─── */
   .mobile-stats {
@@ -1522,13 +1486,8 @@
   .mobile-stat-card .stats-number { font-size: 28px; }
 
   @media (max-width: 999px) {
-    /* Show hamburger, hide desktop nav */
-    .hamburger-btn { display: flex; }
-    .desktop-nav   { display: none !important; }
     /* Show mobile stats */
     .mobile-stats  { display: flex; }
-    /* Topbar needs relative for dropdown */
-    .topbar { position: relative; }
     /* Timer above board on mobile */
     .timer-mobile {
       margin-bottom: 12px;
@@ -1545,21 +1504,9 @@
 <!-- Top bar -->
 <div class="topbar">
   <div class="logo"><span class="box">C</span>ross<span class="cross">+</span>Ball</div>
-  <!-- Desktop nav -->
-  <div class="topbar-nav desktop-nav" style="display:flex;align-items:center;gap:32px;">
-    <button class="leaderboard-btn" onclick="showLeaderboard()">🏆 Leaderboard</button>
-    <button class="instructions-btn" onclick="showInstructions()">Instructions</button>
-  </div>
-  <!-- Mobile hamburger -->
-  <button class="hamburger-btn" id="hamburger-btn" onclick="toggleHamburger()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
+  <button class="instructions-btn" onclick="showInstructions()">Instructions</button>
 </div>
-<!-- Hamburger dropdown menu -->
-<div class="hamburger-menu" id="hamburger-menu">
-  <button class="ham-item" onclick="showLeaderboard();closeHamburger()">🏆 Leaderboard</button>
-  <button class="ham-item" onclick="showInstructions();closeHamburger()">📖 Instructions</button>
-</div>
+
 <!-- Invalid move banner — slides in below header -->
 <div class="toast" id="invalid-toast">
   <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
@@ -1598,7 +1545,7 @@
           <div class="stats-number" id="sb-total-mobile2">—</div>
         </div>
         <div class="sidebar-card mobile-stat-card">
-          <div class="sidebar-title">🏆 Top 3 Players</div>
+          <div class="sidebar-title">🏆 Top 6 Players</div>
           <div id="sb-minilb-mobile"></div>
         </div>
       </div>
@@ -1620,7 +1567,7 @@
         <div class="stats-number" id="sb-total">—</div>
       </div>
       <div class="sidebar-card">
-        <div class="sidebar-title">🏆 Top 3 Players</div>
+        <div class="sidebar-title">🏆 Top 6 Players</div>
         <div id="sb-minilb"><div class="mini-empty">Loading…</div></div>
       </div>
     </div>
@@ -2037,8 +1984,8 @@ async function loadSidebar() {
     if (!rows.length) {
       el.innerHTML = '<div class="mini-empty">No scores yet</div>';
     } else {
-      const emojis = ['🥇','🥈','🥉'];
-      el.innerHTML = rows.slice(0,3).map((r,i) => `
+      const emojis = ['🥇','🥈','🥉','4','5','6'];
+      el.innerHTML = rows.slice(0,6).map((r,i) => `
         <div class="mini-lb-row">
           <span class="mini-rank">${emojis[i]}</span>
           <span class="mini-name">${truncateName(r.player_name)}</span>
@@ -2133,18 +2080,7 @@ function skipScore() {
 
 
 // ── Hamburger menu ───────────────────────────────────────────────────────────
-function toggleHamburger() {
-  document.getElementById('hamburger-menu').classList.toggle('open');
-}
-function closeHamburger() {
-  document.getElementById('hamburger-menu').classList.remove('open');
-}
-// Close on outside click
-document.addEventListener('click', e => {
-  if (!e.target.closest('#hamburger-btn') && !e.target.closest('#hamburger-menu')) {
-    closeHamburger();
-  }
-});
+
 
 // ── Onboarding hint pulse ────────────────────────────────────────────────────
 let hintTimeout = null;
