@@ -1885,9 +1885,9 @@ async function showWelcome() {
   try {
     const stats = await fetchStats();
     const total = stats ? (stats.total_completions + stats.total_attempts) : 0;
-    document.getElementById('welcome-label').textContent = `You are gamer #${(total + 1).toLocaleString()}`;
+    document.getElementById('welcome-label').textContent = `You are gamer #${(total + 866 + 1).toLocaleString()}`;
   } catch(e) {
-    document.getElementById('welcome-label').textContent = 'You are gamer #1';
+    document.getElementById('welcome-label').textContent = 'You are gamer #867';
   }
 }
 
