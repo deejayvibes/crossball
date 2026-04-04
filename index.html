@@ -1378,7 +1378,7 @@
     display: flex;
     flex-direction: column;
     gap: 18px;
-    width: 260px;
+    width: 288px;
     flex-shrink: 0;
   }
   .sidebar-card {
@@ -1737,6 +1737,61 @@
 
 
 
+
+  /* ─── Most Recent Finishers panel ─── */
+  .recent-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    align-items: center;
+    font-family: Georgia, serif;
+    opacity: 0.45;
+  }
+  .recent-row:last-child { border-bottom: none; }
+  .recent-num {
+    font-size: 11px;
+    color: rgba(200,168,60,0.50);
+    text-align: center;
+  }
+  .recent-name {
+    font-size: 13px;
+    color: #d0b880;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .recent-marbles {
+    font-size: 11px;
+    color: rgba(200,168,60,0.55);
+    white-space: nowrap;
+    text-align: right;
+  }
+  .recent-time {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 11px;
+    color: #a8c870;
+    white-space: nowrap;
+    text-align: right;
+  }
+  .recent-header {
+    display: grid;
+    grid-template-columns: 20px 1fr auto;
+    gap: 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(200,168,60,0.14);
+    margin-bottom: 4px;
+    font-family: Georgia, serif;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: rgba(200,168,60,0.35);
+    text-transform: uppercase;
+  }
+
 </style>
 </head>
 <body>
@@ -1801,6 +1856,10 @@
           <div class="sidebar-title">The Best 6 of All Time<br><span style="text-transform:none;color:#ffd700;">(<span class="sb-total-inline" id="sb-total-inline-mobile">—</span> Games)</span></div>
           <div id="sb-minilb-mobile"></div>
         </div>
+        <div class="sidebar-card mobile-stat-card">
+          <div class="sidebar-title">Most Recent Finishers</div>
+          <div id="sb-recent-mobile"><div class="mini-empty">Loading…</div></div>
+        </div>
         <div style="display:flex;justify-content:flex-end;margin-top:16px;">
           <button class="about-btn about-btn-mobile" onclick="showAbout()">About Game</button>
         </div>
@@ -1825,6 +1884,10 @@
       <div class="sidebar-card">
         <div class="sidebar-title">The Best 6 of All Time<br><span style="text-transform:none;color:#ffd700;">(<span class="sb-total-inline" id="sb-total-inline">—</span> Games)</span></div>
         <div id="sb-minilb"><div class="mini-empty">Loading…</div></div>
+      </div>
+      <div class="sidebar-card">
+        <div class="sidebar-title">Most Recent Finishers</div>
+        <div id="sb-recent"><div class="mini-empty">Loading…</div></div>
       </div>
     </div>
   </div>
@@ -2110,7 +2173,8 @@ async function showWelcome() {
   try {
     const stats = await fetchStats();
     const total = stats ? (stats.total_completions + stats.total_attempts) : 0;
-    document.getElementById('welcome-label').textContent = `You are gamer #${(total + 866 + 1).toLocaleString()}`;
+    const gamerNum = (total + 866 + 1) % (999999999 + 1);
+    document.getElementById('welcome-label').textContent = `You are gamer #${gamerNum.toLocaleString()}`;
   } catch(e) {
     document.getElementById('welcome-label').textContent = 'You are gamer #867';
   }
@@ -2241,8 +2305,14 @@ function formatTime(s) {
 async function showLeaderboard() {
   document.getElementById('lb-overlay').classList.add('show');
   document.getElementById('lb-content').innerHTML = '<div class="lb-loading">Loading…</div>';
-  const [rows, stats] = await Promise.all([fetchLeaderboard(), fetchStats()]);
+  const [rows, stats, recentRows] = await Promise.all([fetchLeaderboard(), fetchStats(), fetchRecentPlayers()]);
   renderLB(rows);
+  renderRecentPlayers(recentRows, 'sb-recent');
+  renderRecentPlayers(recentRows, 'sb-recent-mobile');
+  // Recent players
+  renderRecentPlayers(recentRows, 'sb-recent');
+  renderRecentPlayers(recentRows, 'sb-recent-mobile');
+
   // Mobile inline total in leaderboard
   const totalLB = stats ? (stats.total_completions + stats.total_attempts) : 0;
   const mobileEl = document.getElementById('lb-total-mobile');
@@ -2273,14 +2343,13 @@ async function incrementCompletions() {
 }
 
 function formatCount(n) {
-  if (n < 1000) return n.toString();
-  const tenths = Math.floor(n / 100);
-  const k = (tenths / 10).toFixed(1).replace(/\.0$/, '');
-  return k + 'k+';
+  // Wrap at 999,999,999
+  const wrapped = n % (999999999 + 1);
+  return wrapped.toLocaleString();
 }
 
 async function loadSidebar() {
-  const [stats, rows] = await Promise.all([fetchStats(), fetchLeaderboard()]);
+  const [stats, rows, recentRows] = await Promise.all([fetchStats(), fetchLeaderboard(), fetchRecentPlayers()]);
 
   // Total completed = wins + losses (total_attempts tracks game-over events)
   const total = stats ? (stats.total_completions + stats.total_attempts) : 0;
@@ -2299,7 +2368,19 @@ async function loadSidebar() {
   const miniElM = document.getElementById('sb-minilb-mobile');
   [miniEl, miniElM].filter(Boolean).forEach(el => {
     if (!rows.length) {
-      el.innerHTML = '<div class="mini-empty">No scores yet</div>';
+      const rankEmoji = ['🥇','🥈','🥉'];
+      let ph = '';
+      for (let i = 0; i < 6; i++) {
+        const rc = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+        const label = i < 3 ? rankEmoji[i] : (i + 1);
+        const dimStyle = i >= 3 ? 'style="opacity:0.45;"' : '';
+        ph += `<div class="mini-lb-row" ${dimStyle}>
+          <span class="mini-rank ${rc}">${label}</span>
+          <span class="mini-name"><span class="lb-placeholder-bar" style="width:${50 + i * 10}px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+          <span class="mini-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+        </div>`;
+      }
+      el.innerHTML = ph;
     } else {
       const emojis = ['🥇','🥈','🥉','4','5','6'];
       el.innerHTML = rows.slice(0,6).map((r,i) => `
@@ -2481,6 +2562,96 @@ function showShareToast() {
 }
 
 
+
+// ── Most Recent Finishers ───────────────────────────────────────────────────────────
+async function fetchRecentPlayers() {
+  try {
+    const res = await fetch(
+      "https://uodxsqkgyzmuxrvgllws.supabase.co/rest/v1/recent_players?select=player_name,marbles_left,time_seconds,game_result&order=created_at.desc&limit=3",
+      {
+        method: 'GET',
+        headers: {
+          "apikey": SB_KEY,
+          "Authorization": "Bearer " + SB_KEY,
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        mode: 'cors'
+      }
+    );
+    if (!res.ok) {
+      console.error('fetchRecentPlayers error:', res.status, await res.text());
+      return [];
+    }
+    const data = await res.json();
+    console.log('Recent players fetched:', data);
+    return data;
+  } catch(e) {
+    console.error('fetchRecentPlayers exception:', e);
+    return [];
+  }
+}
+
+async function refreshRecentPlayers() {
+  const rows = await fetchRecentPlayers();
+  renderRecentPlayers(rows, 'sb-recent');
+  renderRecentPlayers(rows, 'sb-recent-mobile');
+}
+
+async function insertRecentPlayer(name, marblesLeft, timeSeconds, result) {
+  await fetch("https://uodxsqkgyzmuxrvgllws.supabase.co/rest/v1/recent_players", {
+    method: "POST",
+    headers: { ...sbHeaders(), "Prefer": "return=minimal" },
+    body: JSON.stringify({
+      player_name: name,
+      marbles_left: marblesLeft,
+      time_seconds: timeSeconds,
+      game_result: result
+    })
+  });
+}
+
+function renderRecentPlayers(rows, elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+
+  let html = '';
+
+  // Fill up to 4 rows — real data first, then placeholders
+  for (let i = 0; i < 3; i++) {
+    if (rows && rows[i]) {
+      const r = rows[i];
+      // Replace old "Guest 247"-style names with positional Guest Z/Y/X
+      const letters = ['Z', 'Y', 'X'];
+      const storedName = /^Guest\s+\d+$/.test(r.player_name) ? 'Guest ' + letters[i] : r.player_name;
+      const rawName = storedName.length > 9 ? storedName.slice(0, 9) + '…' : storedName;
+      const marbleWord = r.marbles_left === 1 ? 'marble' : 'marbles';
+      const nameMarbles = `${rawName} <span style="opacity:0.50;font-size:11px;">(${r.marbles_left} ${marbleWord})</span>`;
+      const time = formatTime(r.time_seconds);
+      const icon = r.marbles_left === 1
+        ? '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#4fc3f7" stroke-width="1.2" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;flex-shrink:0;"><polygon points="8,1 15,6 8,15 1,6"/><line x1="1" y1="6" x2="15" y2="6"/><line x1="8" y1="1" x2="5" y2="6"/><line x1="8" y1="1" x2="11" y2="6"/></svg>'
+        : '<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;flex-shrink:0;"><circle cx="12" cy="12" r="10" fill="#c0392b"/><circle cx="12" cy="12" r="8" fill="#e74c3c"/><circle cx="9" cy="9" r="2.5" fill="rgba(255,255,255,0.25)"/><ellipse cx="12" cy="12" rx="7" ry="7" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/></svg>';
+      html += `<div class="recent-row">
+        <span class="recent-name">${icon}<span>${nameMarbles}</span></span>
+        <span class="recent-time">${time}</span>
+      </div>`;
+    } else {
+      // Placeholder skeleton row
+      html += `<div class="recent-row recent-placeholder">
+        <span class="recent-name"><span class="lb-placeholder-bar" style="width:${70 + i * 14}px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+        <span class="recent-time"><span class="lb-placeholder-bar" style="width:44px;height:9px;border-radius:4px;display:inline-block;"></span></span>
+      </div>`;
+    }
+  }
+  el.innerHTML = html;
+}
+
+function guestName(index) {
+  // index 0 = most recent (Z), 1 = middle (Y), 2 = oldest (X)
+  const letters = ['Z', 'Y', 'X'];
+  return 'Guest ' + (letters[index] || 'Z');
+}
+
 function showAbout() { document.getElementById('about-overlay').classList.add('show'); }
 function hideAbout() { document.getElementById('about-overlay').classList.remove('show'); }
 
@@ -2659,6 +2830,9 @@ function checkGameState() {
     document.getElementById('overlay').classList.add('show');
     launchConfetti();
     stopTimer();
+    // Save to recent players
+    const recentName = currentPlayerName !== 'Guest' ? currentPlayerName : guestName(0);
+    insertRecentPlayer(recentName, 1, timerSeconds, 'win').then(refreshRecentPlayers);
     // Hide Play Again until name entry is handled (both guests and named players)
     document.getElementById('play-again-btn').style.display = 'none';
     setTimeout(promptName, 1200);
@@ -2667,6 +2841,9 @@ function checkGameState() {
     document.getElementById('gameover-msg').textContent = `${n} marble${n!==1?'s':''} left — no moves available.`;
     document.getElementById('gameover-overlay').classList.add('show');
     stopTimer();
+    // Save to recent players
+    const recentNameLoss = currentPlayerName !== 'Guest' ? currentPlayerName : guestName(0);
+    insertRecentPlayer(recentNameLoss, countMarbles(), timerSeconds, 'loss').then(refreshRecentPlayers);
     incrementAttempts().then(loadSidebar);
   }
 }
@@ -2698,6 +2875,7 @@ window.addEventListener('DOMContentLoaded', () => {
   resetGame();
   ['timer-display','timer-display-mobile'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('idle');});
   loadSidebar();
+  refreshRecentPlayers();
   // Show welcome screen first; hints fire after player dismisses it
   showWelcome();
 });
