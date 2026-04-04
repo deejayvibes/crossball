@@ -1381,7 +1381,7 @@
   }
   .sb-total-inline {
     font-size: 9px; letter-spacing: 1px;
-    color: rgba(200,168,60,0.38);
+    color: rgba(255,255,255,0.85);
     font-family: Georgia, serif;
     font-weight: normal;
   }
@@ -1390,7 +1390,7 @@
     font-family: Georgia, serif;
     font-size: 9px; letter-spacing: 2.5px;
     text-transform: uppercase;
-    color: rgba(200,168,60,0.50);
+    color: rgba(255,255,255,0.85);
     margin-bottom: 12px;
     border-bottom: 1px solid rgba(200,168,60,0.14);
     padding-bottom: 8px;
@@ -1562,7 +1562,7 @@
       <!-- Mobile stat panels — below reset -->
       <div class="mobile-stats">
         <div class="sidebar-card mobile-stat-card">
-          <div class="sidebar-title">🏆 Top 6 Players <span class="sb-total-inline" id="sb-total-inline-mobile"></span></div>
+          <div class="sidebar-title">The Top 6 of <span class="sb-total-inline" id="sb-total-inline-mobile">—</span> Games</div>
           <div id="sb-minilb-mobile"></div>
         </div>
       </div>
@@ -1580,7 +1580,7 @@
         </div>
       </div>
       <div class="sidebar-card">
-        <div class="sidebar-title">🏆 Top 6 Players <span class="sb-total-inline" id="sb-total-inline"></span></div>
+        <div class="sidebar-title">The Top 6 of <span class="sb-total-inline" id="sb-total-inline">—</span> Games</div>
         <div id="sb-minilb"><div class="mini-empty">Loading…</div></div>
       </div>
     </div>
@@ -1996,7 +1996,7 @@ async function loadSidebar() {
   // Inline total in Top 6 title
   ['sb-total-inline','sb-total-inline-mobile'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.textContent = total > 0 ? `of ${formatCount(total)} players` : '';
+    if (el) el.textContent = total > 0 ? formatCount(total) : '—';
   });
 
   // Mini leaderboard (desktop)
