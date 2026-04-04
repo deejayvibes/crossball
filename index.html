@@ -633,14 +633,21 @@
   }
   .instr-close {
     display: block; width: 100%;
-    padding: 10px;
-    background: linear-gradient(180deg, #7acc5a 0%, #3a8028 100%);
-    color: #e8f8d8; border: 1px solid #206010;
-    font-size: 14px; letter-spacing: 1px;
-    cursor: pointer; border-radius: 7px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    padding: 12px;
+    background: linear-gradient(135deg, #ffd93d 0%, #ff9500 100%);
+    color: #1a1208; border: none;
+    font-size: 15px; font-weight: bold;
+    font-family: Georgia, serif; letter-spacing: 1.5px;
+    cursor: pointer; border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(255,200,0,0.40),
+                inset 0 1px 0 rgba(255,255,255,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
   }
-  .instr-close:hover { background: linear-gradient(180deg, #8adc6a 0%, #4a9030 100%); }
+  .instr-close:hover {
+    background: linear-gradient(135deg, #ffe85a 0%, #ffa520 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255,200,0,0.55), inset 0 1px 0 rgba(255,255,255,0.35);
+  }
 
 
   /* ─── Red error blink on invalid marble click ─── */
@@ -1275,6 +1282,7 @@
     font-family: Georgia, serif;
     font-size: 14px; color: #d0b060;
     margin-bottom: 10px; display: block;
+    text-align: left;
   }
   .welcome-input {
     width: 100%; padding: 11px 14px;
@@ -1314,18 +1322,18 @@
   .welcome-guest {
     width: 100%; padding: 11px;
     background: transparent;
-    border: 1px solid rgba(200,168,60,0.35);
+    border: 1.5px solid rgba(122,204,90,0.55);
     border-radius: 50px;
-    color: rgba(200,168,60,0.70);
+    color: rgba(122,204,90,0.80);
     font-size: 14px; font-family: Georgia, serif;
     letter-spacing: 1px; cursor: pointer;
     display: block;
     transition: border-color 0.2s, color 0.2s, background 0.2s;
   }
   .welcome-guest:hover {
-    border-color: rgba(200,168,60,0.65);
-    color: #f0d060;
-    background: rgba(200,168,60,0.06);
+    border-color: rgba(122,204,90,0.85);
+    color: #7acc5a;
+    background: rgba(122,204,90,0.06);
   }
   .welcome-error {
     font-family: Georgia, serif;
@@ -1833,9 +1841,17 @@ function maskName(name) {
 
 let currentPlayerName = 'Guest';
 
-function showWelcome() {
+async function showWelcome() {
   document.getElementById('welcome-overlay').classList.add('show');
   setTimeout(() => document.getElementById('welcome-input').focus(), 200);
+  // Fetch gamer number = games completed + 1
+  try {
+    const stats = await fetchStats();
+    const total = stats ? (stats.total_completions + stats.total_attempts) : 0;
+    document.getElementById('welcome-label').textContent = `You are gamer #${(total + 1).toLocaleString()}`;
+  } catch(e) {
+    document.getElementById('welcome-label').textContent = 'You are gamer #1';
+  }
 }
 
 function startWithName() {
@@ -2330,9 +2346,9 @@ window.addEventListener('DOMContentLoaded', () => {
 <div class="welcome-overlay" id="welcome-overlay">
   <div class="welcome-box">
     <div class="welcome-logo">Cross<span>+</span>Ball</div>
-    <label class="welcome-label" for="welcome-input">Player Name</label>
+    <label class="welcome-label" id="welcome-label" for="welcome-input">You are gamer #…</label>
     <input class="welcome-input" id="welcome-input" type="text"
-           maxlength="12" placeholder="Your name" autocomplete="off" />
+           maxlength="12" placeholder="Enter your name" autocomplete="off" />
     <span class="welcome-error" id="welcome-error"></span>
     <button class="welcome-play" onclick="startWithName()">Play</button>
     <button class="welcome-guest" onclick="startAsGuest()">Continue as Guest</button>
