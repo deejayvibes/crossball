@@ -1542,7 +1542,7 @@
 <!-- Top bar -->
 <div class="topbar">
   <div class="welcome-logo" style="margin-bottom:0;">Cross<span>+</span>Ball</div>
-  <button class="instructions-btn" onclick="showInstructions()">Instructions</button>
+  <button class="instructions-btn" onclick="showInstructions()">Get Started</button>
 </div>
 
 <!-- Invalid move banner — slides in below header -->
@@ -1552,7 +1552,7 @@
     <line x1="8" y1="4.5" x2="8" y2="9" stroke="#e05030" stroke-width="1.8" stroke-linecap="round"/>
     <circle cx="8" cy="11.5" r="0.9" fill="#e05030"/>
   </svg>
-  Invalid move. Please check the instructions.
+  Invalid move. Review the 'Get Started' guide for help.
 </div>
 <!-- Main board area -->
 <div class="main">
@@ -2161,7 +2161,7 @@ async function submitScore() {
       el.classList.remove('show');
       el.classList.add('hide');
       el.querySelector('svg').style.display = '';
-      el.childNodes[el.childNodes.length - 1].textContent = ' Invalid move. Please check the instructions.';
+      el.childNodes[el.childNodes.length - 1].textContent = ' Invalid move. Please refer to the Get Started guide.';
       toastTimer = setTimeout(() => el.classList.remove('hide'), 320);
     }, 3000);
   }
