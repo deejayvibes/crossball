@@ -2145,7 +2145,41 @@ function promptName() {
 
 async function submitScore() {
   const name = document.getElementById('player-name-input').value.trim();
+  const nameErr = document.getElementById('name-error');
+
   if (!name) { document.getElementById('player-name-input').focus(); return; }
+
+  // Reserved name check
+  if (isReservedName(name)) {
+    nameErr.textContent = 'That name is taken! Please choose another.';
+    document.getElementById('player-name-input').focus();
+    return;
+  }
+
+  // Static profanity check
+  if (containsProfanity(name)) {
+    nameErr.textContent = 'These words are not allowed as names.';
+    document.getElementById('player-name-input').focus();
+    return;
+  }
+
+  // OpenAI moderation check
+  nameErr.textContent = '';
+  const submitBtn = document.querySelector('.name-submit');
+  const origText = submitBtn.textContent;
+  submitBtn.textContent = 'Checking…';
+  submitBtn.disabled = true;
+  const flagged = await checkModeration(name);
+  submitBtn.textContent = origText;
+  submitBtn.disabled = false;
+
+  if (flagged) {
+    nameErr.textContent = 'These words are not allowed as names.';
+    document.getElementById('player-name-input').focus();
+    return;
+  }
+
+  nameErr.textContent = '';
   document.getElementById('name-overlay').classList.remove('show');
   document.getElementById('play-again-btn').style.display = '';
   const qualified = await insertScore(name, timerSeconds);
@@ -2351,14 +2385,9 @@ function checkGameState() {
     document.getElementById('overlay').classList.add('show');
     launchConfetti();
     stopTimer();
-    if (currentPlayerName === 'Guest') {
-      // Guest — show Play Again immediately, skip name entry
-      document.getElementById('play-again-btn').style.display = '';
-    } else {
-      // Named player — hide Play Again until they handle name entry
-      document.getElementById('play-again-btn').style.display = 'none';
-      setTimeout(promptName, 1200);
-    }
+    // Hide Play Again until name entry is handled (both guests and named players)
+    document.getElementById('play-again-btn').style.display = 'none';
+    setTimeout(promptName, 1200);
     incrementCompletions().then(loadSidebar);
   } else if (!hasAnyMove()) {
     document.getElementById('gameover-msg').textContent = `${n} marble${n!==1?'s':''} left — no moves available.`;
@@ -2448,6 +2477,7 @@ window.addEventListener('DOMContentLoaded', () => {
     <p id="name-time-display"></p>
     <input class="name-input" id="player-name-input" type="text"
            maxlength="12" placeholder="Enter your name" autocomplete="off" />
+    <p id="name-error" style="color:#f07050;font-family:Georgia,serif;font-size:12px;min-height:16px;margin:6px 0 4px;"></p>
     <button class="name-submit" onclick="submitScore()">Save to Leaderboard</button>
     <button class="name-skip" onclick="skipScore()">Skip</button>
   </div>
