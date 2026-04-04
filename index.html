@@ -1835,6 +1835,7 @@ const PROFANITY_LIST = [
   'fuck','shit','ass','bitch','bastard','cunt','dick','cock','pussy','whore',
   'slut','nigger','nigga','faggot','fag','retard','rape','crap','damn','hell',
   'piss','prick','twat','wank','asshole','arsehole','motherfucker','bullshit',
+  'sex','boob','boobs',
   // Hindi transliterated
   'madarchod','behenchod','bhosdike','bhosdi','chutiya','chutiye','gandu','randi',
   'harami','saala','gaand','lauda','lavda','bhen','mc','bc','lund','maa ki',
@@ -1845,6 +1846,25 @@ const PROFANITY_LIST = [
   'kus','orospu','siktir','amk','yarrak','götü','pizda','blyad','suka',
   'kurwa','hure','fotze','wichser','arschloch'
 ];
+
+
+// ── OpenAI Moderation API via Cloudflare proxy ───────────────────────────────
+const MODERATION_PROXY = "https://moderation-proxy.djdango2025.workers.dev/";
+
+async function checkModeration(text) {
+  try {
+    const res = await fetch(MODERATION_PROXY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: text })
+    });
+    if (!res.ok) return false; // fail open if proxy errors
+    const data = await res.json();
+    return data.results && data.results[0] && data.results[0].flagged;
+  } catch(e) {
+    return false; // fail open on network error
+  }
+}
 
 function containsProfanity(name) {
   const lower = name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -1870,7 +1890,15 @@ async function showWelcome() {
   }
 }
 
-function startWithName() {
+const RESERVED_NAMES = ['danny', 'dhaneesh', 'jameson', 'danni', 'deejay', 'danish', 'bincy', 'binna'];
+
+function isReservedName(name) {
+  const lower = name.toLowerCase().replace(/\s+/g, '');
+  // Block if the name contains any reserved name as a substring
+  return RESERVED_NAMES.some(r => lower.includes(r));
+}
+
+async function startWithName() {
   const input = document.getElementById('welcome-input');
   const errEl = document.getElementById('welcome-error');
   const raw = input.value.trim();
@@ -1886,8 +1914,38 @@ function startWithName() {
     return;
   }
 
+  if (isReservedName(raw)) {
+    errEl.textContent = 'That name is taken! Please choose another.';
+    input.focus();
+    return;
+  }
+
+  // First check static list (instant), then OpenAI (async)
+  if (containsProfanity(raw)) {
+    errEl.textContent = 'These words are not allowed as names.';
+    input.focus();
+    return;
+  }
+
+  // Show checking state
   errEl.textContent = '';
-  currentPlayerName = containsProfanity(raw) ? maskName(raw) : raw;
+  const playBtn = document.querySelector('.welcome-play');
+  const origText = playBtn.textContent;
+  playBtn.textContent = 'Checking…';
+  playBtn.disabled = true;
+
+  const flagged = await checkModeration(raw);
+  playBtn.textContent = origText;
+  playBtn.disabled = false;
+
+  if (flagged) {
+    errEl.textContent = 'These words are not allowed as names.';
+    input.focus();
+    return;
+  }
+
+  errEl.textContent = '';
+  currentPlayerName = raw;
   document.getElementById('welcome-overlay').classList.remove('show');
   setTimeout(showHints, 400);
 }
