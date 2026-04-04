@@ -1597,6 +1597,145 @@
   .share-toast.show { animation: shareToastIn 0.2s ease forwards; }
   .share-toast.hide { animation: shareToastOut 0.3s ease forwards; }
 
+
+  .about-btn {
+    background: none; border: none;
+    color: #e0c880; font-size: 13px; cursor: pointer; letter-spacing: 1px;
+    text-decoration: none; padding: 0;
+    opacity: 0.60;
+    transition: color 0.2s, opacity 0.2s;
+  }
+  .about-btn:hover { color: #fff; opacity: 1; }
+
+  /* About overlay */
+  .about-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.72);
+    z-index: 200; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .about-overlay.show { display: flex; }
+  .about-box {
+    background: linear-gradient(160deg, #3a2810 0%, #281c0c 100%);
+    border: 2px solid #8a6030;
+    border-radius: 12px;
+    padding: 36px 44px 40px;
+    max-width: 440px; width: 90%;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.80),
+      inset 2px 2px 10px rgba(255,200,80,0.10),
+      inset -2px -2px 10px rgba(0,0,0,0.40);
+    position: relative;
+  }
+  .about-x {
+    position: absolute;
+    top: 14px; right: 16px;
+    background: none; border: none;
+    color: rgba(200,168,60,0.50);
+    font-size: 16px; cursor: pointer;
+    padding: 4px 6px;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+  .about-x:hover { color: #f0d060; }
+  .about-credit {
+    position: absolute;
+    bottom: 14px;
+    right: 20px;
+    font-family: Georgia, serif;
+    font-size: 10px !important;
+    color: rgba(150,120,50,0.40);
+    letter-spacing: 0.5px;
+    margin: 66px 0 0;
+    opacity: 0.5;
+  }
+  .about-credit-link {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .about-credit-link:hover { opacity: 0.8; }
+  .about-box h2 {
+    font-size: 20px; color: #f0d878;
+    font-family: Georgia, serif;
+    margin-bottom: 16px; letter-spacing: 0.5px;
+    text-align: center;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    border-bottom: 1px solid rgba(255,200,80,0.2);
+    padding-bottom: 12px;
+  }
+  .about-box p {
+    font-family: Georgia, serif;
+    font-size: 17px; color: #f0ddb0;
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+  .about-close {
+    display: block; width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #ffd93d 0%, #ff9500 100%);
+    color: #1a1208; border: none;
+    font-size: 15px; font-weight: bold;
+    font-family: Georgia, serif; letter-spacing: 1.5px;
+    cursor: pointer; border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(255,200,0,0.40),
+                inset 0 1px 0 rgba(255,255,255,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .about-credit {
+    text-align: center;
+    font-family: Georgia, serif;
+    font-size: 7px;
+    color: rgba(150,120,50,0.40);
+    letter-spacing: 0.5px;
+    margin: 10px 0 0;
+  }
+  .about-close:hover {
+    background: linear-gradient(135deg, #ffe85a 0%, #ffa520 100%);
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 999px) {
+    .about-box { padding: 24px 20px 20px; }
+    .about-box h2 { font-size: 17px; }
+    .about-box p  { font-size: 14px; }
+  }
+
+
+  .about-btn-mobile { display: none; }
+  .mobile-credit {
+    display: none;
+    text-align: center;
+    font-family: Georgia, serif;
+    font-size: 9px;
+    color: rgba(200,168,60,0.18);
+    letter-spacing: 0.5px;
+    margin: 8px 0 0;
+  }
+
+  @media (max-width: 999px) {
+    /* Hide About from header on mobile */
+    .about-btn:not(.about-btn-mobile) { display: none; }
+    /* Show About button at bottom of mobile stats */
+    .about-btn-mobile {
+      display: block;
+      background: none; border: none;
+      color: #e0c880; font-size: 13px; cursor: pointer; letter-spacing: 1px;
+      opacity: 0.60;
+      padding: 10px 0 0;
+      text-align: center;
+      width: 100%;
+      transition: color 0.2s, opacity 0.2s;
+    }
+    .about-btn-mobile:hover { color: #fff; opacity: 1; }
+    /* Show mobile credit */
+    .mobile-credit { display: block; }
+    /* 44px padding at bottom of page */
+    .mobile-stats {
+      padding-bottom: 44px;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -1605,6 +1744,7 @@
 <div class="topbar">
   <div class="welcome-logo" style="margin-bottom:0;">Cross<span>+</span>Ball</div>
   <div style="display:flex;align-items:center;gap:20px;">
+    <button class="about-btn" onclick="showAbout()">About</button>
     <div style="position:relative;">
       <button class="share-btn" onclick="shareGame()" title="Share this game">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1660,6 +1800,8 @@
           <div class="sidebar-title">The Best 6 of All Time<br><span style="text-transform:none;color:#ffd700;">(<span class="sb-total-inline" id="sb-total-inline-mobile">—</span> Games)</span></div>
           <div id="sb-minilb-mobile"></div>
         </div>
+        <button class="about-btn about-btn-mobile" onclick="showAbout()" style="margin-top:8px;">About</button>
+        <p class="mobile-credit">Digitally recreated by Dhaneesh Jameson</p>
       </div>
     </div>
     <!-- Right sidebar: stats + mini leaderboard (desktop only) -->
@@ -2336,6 +2478,10 @@ function showShareToast() {
   }, 2000);
 }
 
+
+function showAbout() { document.getElementById('about-overlay').classList.add('show'); }
+function hideAbout() { document.getElementById('about-overlay').classList.remove('show'); }
+
 // ── Onboarding hint pulse ────────────────────────────────────────────────────
 let hintTimeout = null;
 let hintsActive = false;
@@ -2623,6 +2769,17 @@ window.addEventListener('DOMContentLoaded', () => {
   </div>
 </div>
 
+
+
+<!-- About overlay -->
+<div class="about-overlay" id="about-overlay" onclick="if(event.target===this)hideAbout()">
+  <div class="about-box">
+    <button class="about-x" onclick="hideAbout()">✕</button>
+    <h2>A Bit of History</h2>
+    <p>The game dates back to the court of Louis XIV in 17th-century France. Legend has it that it was invented by a nobleman imprisoned in the Bastille to pass the time, though most historians believe it originated from simpler mathematical folk games.</p>
+    <p class="about-credit">(Digitally recreated by <a href="https://www.linkedin.com/in/dhaneeshjameson/" target="_blank" rel="noopener" class="about-credit-link">Dhaneesh Jameson</a>)</p>
+  </div>
+</div>
 
 </body>
 </html>
