@@ -2149,6 +2149,38 @@ function clearHints() {
 let invalidClickCount = 0;
 let toastTimer = null;
 
+// ── Hint after 8s of invalid moves ──────────────────────────────────────────
+let hintAfterErrorTimer = null;
+
+function showHintsAllAtOnce() {
+  // Show all valid-move marbles with blue ring simultaneously
+  hintsActive = true;
+  const marbleEls = [...document.querySelectorAll('.marble[data-r]')];
+  const hintables = marbleEls.filter(el => {
+    const r = parseInt(el.dataset.r), c = parseInt(el.dataset.c);
+    return getPossibleMoves(r, c).length > 0;
+  });
+  hintables.forEach(el => {
+    el.classList.remove('hint');
+    void el.offsetWidth;
+    el.classList.add('hint');
+    setTimeout(() => el.classList.remove('hint'), 1500);
+  });
+  hintTimeout = setTimeout(() => { hintsActive = false; }, 1600);
+}
+
+function scheduleHintAfterError() {
+  clearTimeout(hintAfterErrorTimer);
+  hintAfterErrorTimer = setTimeout(() => {
+    if (invalidClickCount >= 2) showHintsAllAtOnce();
+  }, 8000);
+}
+
+function cancelHintAfterError() {
+  clearTimeout(hintAfterErrorTimer);
+  hintAfterErrorTimer = null;
+}
+
 function showInvalidToast() {
   const el = document.getElementById('invalid-toast');
   if (toastTimer) clearTimeout(toastTimer);
@@ -2179,11 +2211,17 @@ function selectMarble(r, c) {
         setTimeout(() => el.classList.remove('error'), 600);
       }
     });
-    if (invalidClickCount >= 2) showInvalidToast();
+    if (invalidClickCount >= 2) {
+      showInvalidToast();
+      scheduleHintAfterError();
+      // Also show all rings immediately on 2nd (and subsequent) toast triggers
+      showHintsAllAtOnce();
+    }
     return;
   }
   // Valid move found — reset invalid counter
   invalidClickCount = 0;
+  cancelHintAfterError();
   selected = {r, c};
   renderBoard();
 }
@@ -2271,6 +2309,8 @@ function resetGame() {
   document.getElementById('gameover-overlay').classList.remove('show');
   stopConfetti();
   resetTimer();
+  cancelHintAfterError();
+  invalidClickCount = 0;
   document.querySelectorAll('.reset-btn').forEach(b => b.classList.add('inactive'));
   renderBoard();
   setTimeout(showHints, 400);
