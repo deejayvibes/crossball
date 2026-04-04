@@ -1722,7 +1722,7 @@
       background: none; border: none;
       color: #e0c880; font-size: 13px; cursor: pointer; letter-spacing: 1px;
       opacity: 0.60;
-      padding: 10px 0 0;
+      padding: 0;
       text-align: center;
       width: 100%;
       transition: color 0.2s, opacity 0.2s;
@@ -1735,6 +1735,8 @@
       padding-bottom: 44px;
     }
   }
+
+
 
 </style>
 </head>
@@ -1792,7 +1794,7 @@
           <div class="board" id="board"></div>
         </div>
       </div>
-      <!-- Reset — plain text link below board -->
+      <!-- Reset Game below board -->
       <button class="reset-btn reset-btn-tray inactive" onclick="resetGame()">Reset Game</button>
       <!-- Mobile stat panels — below reset -->
       <div class="mobile-stats">
@@ -1800,7 +1802,9 @@
           <div class="sidebar-title">The Best 6 of All Time<br><span style="text-transform:none;color:#ffd700;">(<span class="sb-total-inline" id="sb-total-inline-mobile">—</span> Games)</span></div>
           <div id="sb-minilb-mobile"></div>
         </div>
-        <button class="about-btn about-btn-mobile" onclick="showAbout()" style="margin-top:8px;">About</button>
+        <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+          <button class="about-btn about-btn-mobile" onclick="showAbout()">About Game</button>
+        </div>
       </div>
     </div>
     <!-- Right sidebar: stats + mini leaderboard (desktop only) -->
