@@ -361,32 +361,45 @@
     min-width: fit-content;
     position: relative;
     background: #5a3810;
-    height: 166px;
+    height: 174px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     overflow: visible;
-    padding: 10px 24px;
+    padding-top: 10px;
+    padding-bottom: 18px;
+  }x 24px;
   }
 
   /* Reset button — plain text link, no box */
   .reset-btn {
-    background: none;
-    border: 1px solid rgba(224,200,128,0.40);
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    background-color: transparent;
+    border: 1px solid rgba(224,200,128,0.45);
     border-radius: 50px;
+    outline: none;
     box-shadow: none;
-    padding: 6px 18px;
-    margin-top: 34px;
+    padding: 6px 20px;
+    margin: 0;
     color: #e0c880;
     font-size: 13px;
     letter-spacing: 1px;
+    font-family: Georgia, serif;
     text-decoration: none;
     cursor: pointer;
     opacity: 0.75;
     transition: color 0.2s, opacity 0.2s, border-color 0.2s;
-    display: block;
+    display: inline-block;
+    user-select: none;
   }
+  .reset-btn:hover { color: #fff; opacity: 1; }
+  .reset-btn:focus { outline: none !important; box-shadow: none !important; background: transparent !important; }
+  .reset-btn.inactive { opacity: 0.35; cursor: default; pointer-events: none; }
+  .reset-btn:focus { outline: none; box-shadow: none; }
+  .reset-btn.inactive { opacity: 0.35; cursor: default; }
   .reset-btn:hover {
     color: #fff;
     opacity: 1;
@@ -1392,7 +1405,7 @@
   }
   .sb-total-inline {
     font-size: 11px; letter-spacing: 1px;
-    color: #ffd700;
+    color: #d4c040;
     font-family: Georgia, serif;
     font-weight: normal;
   }
@@ -1792,6 +1805,42 @@
     text-transform: uppercase;
   }
 
+
+
+
+
+  .reset-capsule-wrap {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 20px 0 8px;
+  }
+  .reset-capsule {
+    display: inline-block;
+    padding: 8px 28px;
+    border: 1px solid rgba(224,200,128,0.60);
+    border-radius: 50px;
+    color: #e0c880;
+    font-size: 13px;
+    font-family: Georgia, serif;
+    letter-spacing: 1px;
+    cursor: pointer;
+    opacity: 0.80;
+    user-select: none;
+    transition: color 0.2s, opacity 0.2s, border-color 0.2s;
+    background: transparent;
+  }
+  .reset-capsule:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.60);
+    opacity: 1;
+  }
+  .reset-capsule.inactive {
+    opacity: 0.06;
+    cursor: default;
+    pointer-events: none;
+  }
+
 </style>
 </head>
 <body>
@@ -1848,12 +1897,12 @@
           <div class="board" id="board"></div>
         </div>
       </div>
-      <!-- Reset Game below board -->
-      <button class="reset-btn reset-btn-tray inactive" onclick="resetGame()">Reset Game</button>
+      <!-- Reset Game between board and tray -->
+      <div class="reset-capsule-wrap"><div class="reset-capsule inactive" id="reset-capsule" onclick="resetGame()">Reset Game</div></div>
       <!-- Mobile stat panels — below reset -->
       <div class="mobile-stats">
         <div class="sidebar-card mobile-stat-card">
-          <div class="sidebar-title">The Best 6 of All Time<br><span style="text-transform:none;color:#ffd700;">(<span class="sb-total-inline" id="sb-total-inline-mobile">—</span> Games)</span></div>
+          <div class="sidebar-title">The Best 6 of All Time<br><span style="text-transform:none;color:#d4c040;">(<span class="sb-total-inline" id="sb-total-inline-mobile">—</span> Games)</span></div>
           <div id="sb-minilb-mobile"></div>
         </div>
         <div class="sidebar-card mobile-stat-card">
@@ -1882,7 +1931,7 @@
         </div>
       </div>
       <div class="sidebar-card">
-        <div class="sidebar-title">The Best 6 of All Time<br><span style="text-transform:none;color:#ffd700;">(<span class="sb-total-inline" id="sb-total-inline">—</span> Games)</span></div>
+        <div class="sidebar-title">The Best 6 of All Time<br><span style="text-transform:none;color:#d4c040;">(<span class="sb-total-inline" id="sb-total-inline">—</span> Games)</span></div>
         <div id="sb-minilb"><div class="mini-lb-row">
           <span class="mini-rank gold">🥇</span>
           <span class="mini-name"><span class="lb-placeholder-bar" style="width:50px;height:9px;border-radius:4px;display:inline-block;"></span></span>
@@ -2491,7 +2540,7 @@ function promptName() {
   if (m > 0 || h > 0) parts.push(m + 'm');
   parts.push(s + 's');
   document.getElementById('name-time-display').textContent = 'Your time: ' + parts.join(' ') + ' ⏱';
-  document.getElementById('player-name-input').value = currentPlayerName !== 'Guest' ? currentPlayerName : '';
+  document.getElementById('player-name-input').value = currentPlayerName !== 'Guest' ? currentPlayerName : 'Guest';
   document.getElementById('name-overlay').classList.add('show');
   setTimeout(() => document.getElementById('player-name-input').focus(), 100);
 }
@@ -2535,6 +2584,11 @@ async function submitScore() {
   nameErr.textContent = '';
   document.getElementById('name-overlay').classList.remove('show');
   document.getElementById('play-again-btn').style.display = '';
+  // Always update the recent_players entry with the final submitted name
+  if (window._lastRecentId && name) {
+    console.log("Updating recent player", window._lastRecentId, "with name:", name);
+    await updateRecentPlayerName(window._lastRecentId, name);
+  }
   const qualified = await insertScore(name, timerSeconds);
   if (qualified === false) {
     // Not in top 6 — show a gentle toast
@@ -2625,16 +2679,57 @@ async function fetchRecentPlayers() {
         mode: 'cors'
       }
     );
-    if (!res.ok) {
-      console.error('fetchRecentPlayers error:', res.status, await res.text());
-      return [];
-    }
-    const data = await res.json();
-    console.log('Recent players fetched:', data);
-    return data;
+    if (!res.ok) return [];
+    return await res.json();
   } catch(e) {
-    console.error('fetchRecentPlayers exception:', e);
-    return [];
+    return []; // Silently fail — skeleton placeholders shown
+  }
+}
+
+async function refreshRecentPlayers() {
+  const rows = await fetchRecentPlayers();
+  renderRecentPlayers(rows, 'sb-recent');
+  renderRecentPlayers(rows, 'sb-recent-mobile');
+}
+
+
+// Track last inserted recent player ID for post-win name update
+window._lastRecentId = null;
+window._lastRecentIsGuest = false;
+
+async function insertRecentPlayerAndTrack(name, marblesLeft, timeSeconds, result) {
+  window._lastRecentId = null; // reset before insert
+  try {
+    const res = await fetch("https://uodxsqkgyzmuxrvgllws.supabase.co/rest/v1/recent_players", {
+      method: "POST",
+      headers: { ...sbHeaders(), "Prefer": "return=representation", "Content-Type": "application/json" },
+      body: JSON.stringify({ player_name: name, marbles_left: marblesLeft, time_seconds: timeSeconds, game_result: result })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data[0]) { window._lastRecentId = data[0].id; console.log("Recent player saved, id:", window._lastRecentId); }
+    }
+  } catch(e) {}
+  refreshRecentPlayers();
+}
+
+async function updateRecentPlayerName(id, name) {
+  try {
+    const res = await fetch(`https://uodxsqkgyzmuxrvgllws.supabase.co/rest/v1/recent_players?id=eq.${id}`, {
+      method: "PATCH",
+      headers: { ...sbHeaders(), "Prefer": "return=representation", "Content-Type": "application/json" },
+      body: JSON.stringify({ player_name: name })
+    });
+    const text = await res.text();
+    console.log("PATCH status:", res.status, "response:", text);
+    if (res.ok) {
+      console.log("Name updated to:", name);
+      refreshRecentPlayers();
+    } else {
+      console.error("PATCH failed:", res.status, text);
+    }
+  } catch(e) {
+    console.error("updateRecentPlayerName error:", e);
   }
 }
 
@@ -2669,7 +2764,7 @@ function renderRecentPlayers(rows, elId) {
       const r = rows[i];
       // Replace old "Guest 247"-style names with positional Guest Z/Y/X
       const letters = ['Z', 'Y', 'X'];
-      const storedName = /^Guest\s+\d+$/.test(r.player_name) ? 'Guest ' + letters[i] : r.player_name;
+      const storedName = (r.player_name === 'Guest' || /^Guest\s+\d+$/.test(r.player_name)) ? 'Guest ' + letters[i] : r.player_name;
       const rawName = storedName.length > 12 ? storedName.slice(0, 12) + '…' : storedName;
       const marbleWord = r.marbles_left === 1 ? 'marble' : 'marbles';
       const nameMarbles = `${rawName} <span style="opacity:0.50;font-size:11px;">(${r.marbles_left} ${marbleWord})</span>`;
@@ -2841,7 +2936,7 @@ function moveTo(tr, tc) {
   if (!timerStarted) {
     timerStarted = true;
     startTimer();
-    document.querySelectorAll('.reset-btn').forEach(b => b.classList.remove('inactive'));
+    document.querySelectorAll('.reset-btn, .reset-capsule').forEach(b => b.classList.remove('inactive'));
   }
   selected = null;
   renderBoard();
@@ -2861,7 +2956,31 @@ function hasAnyMove() {
   return false;
 }
 
-function checkGameState() {
+function resetGame() {
+  board = makeInitialBoard();
+  selected = null;
+  removedMarbles = 0;
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('gameover-overlay').classList.remove('show');
+  stopConfetti();
+  resetTimer();
+  cancelHintAfterError();
+  invalidClickCount = 0;
+  document.querySelectorAll('.reset-btn, .reset-capsule').forEach(b => b.classList.add('inactive'));
+  renderBoard();
+  setTimeout(showHints, 400);
+  renderTray();
+}
+
+function showInstructions() {
+  document.getElementById('instr-overlay').classList.add('show');
+}
+
+function hideInstructions() {
+  document.getElementById('instr-overlay').classList.remove('show');
+}
+
+async function checkGameState() {
   const n = countMarbles();
   if (n===1) {
     document.getElementById('overlay-title').textContent = 'You Win!';
@@ -2878,13 +2997,21 @@ function checkGameState() {
     stopTimer();
     // Save to recent players
     const recentName = currentPlayerName !== 'Guest' ? currentPlayerName : guestName(0);
-    insertRecentPlayer(recentName, 1, timerSeconds, 'win').then(refreshRecentPlayers);
-    // Hide Play Again until name entry is handled (both guests and named players)
+    window._lastRecentIsGuest = (currentPlayerName === 'Guest');
+    // Pick Guest letter not already in recent list
+    if (currentPlayerName === 'Guest') {
+      // Save as 'Guest' — display assigns Z/Y/X by position
+      window._chosenGuestName = 'Guest';
+      await insertRecentPlayerAndTrack('Guest', 1, timerSeconds, 'win');
+    } else {
+      window._chosenGuestName = recentName;
+      await insertRecentPlayerAndTrack(recentName, 1, timerSeconds, 'win');
+    }
+    // Hide Play Again until name entry is handled
     document.getElementById('play-again-btn').style.display = 'none';
     setTimeout(promptName, 1200);
-    incrementCompletions().then(loadSidebar);
   } else if (!hasAnyMove()) {
-    document.getElementById('gameover-msg').textContent = `${n} marble${n!==1?'s':''} left — no moves available.`;
+    // No valid moves left — game over
     document.getElementById('gameover-overlay').classList.add('show');
     stopTimer();
     // Save to recent players
@@ -2892,29 +3019,6 @@ function checkGameState() {
     insertRecentPlayer(recentNameLoss, countMarbles(), timerSeconds, 'loss').then(refreshRecentPlayers);
     incrementAttempts().then(loadSidebar);
   }
-}
-
-function resetGame() {
-  board = makeInitialBoard();
-  selected = null;
-  removedMarbles = 0;
-  document.getElementById('overlay').classList.remove('show');
-  document.getElementById('gameover-overlay').classList.remove('show');
-  stopConfetti();
-  resetTimer();
-  cancelHintAfterError();
-  invalidClickCount = 0;
-  document.querySelectorAll('.reset-btn').forEach(b => b.classList.add('inactive'));
-  renderBoard();
-  setTimeout(showHints, 400);
-  renderTray();
-}
-
-function showInstructions() {
-  document.getElementById('instr-overlay').classList.add('show');
-}
-function hideInstructions() {
-  document.getElementById('instr-overlay').classList.remove('show');
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -2925,7 +3029,6 @@ window.addEventListener('DOMContentLoaded', () => {
   // Show welcome screen first; hints fire after player dismisses it
   showWelcome();
 });
-
 
 </script>
 
