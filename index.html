@@ -1541,7 +1541,7 @@
       <!-- Mobile stat panels — below reset -->
       <div class="mobile-stats">
         <div class="sidebar-card mobile-stat-card">
-          <div class="sidebar-title">Total Games Played</div>
+          <div class="sidebar-title">Games Completed</div>
           <div class="stats-number" id="sb-total-mobile2">—</div>
         </div>
         <div class="sidebar-card mobile-stat-card">
@@ -1563,7 +1563,7 @@
         </div>
       </div>
       <div class="sidebar-card">
-        <div class="sidebar-title">Total Games Played</div>
+        <div class="sidebar-title">Games Completed</div>
         <div class="stats-number" id="sb-total">—</div>
       </div>
       <div class="sidebar-card">
@@ -1591,7 +1591,7 @@
     <div class="win-emoji">🏆</div>
     <h2 id="overlay-title">You Win!</h2>
     <p id="overlay-msg">Brilliant! Only one marble remains.</p>
-    <button class="win-btn" onclick="resetGame()">Play Again</button>
+    <button class="win-btn" id="play-again-btn" onclick="resetGame()">Play Again</button>
   </div>
 </div>
 
@@ -1986,8 +1986,8 @@ async function loadSidebar() {
     } else {
       const emojis = ['🥇','🥈','🥉','4','5','6'];
       el.innerHTML = rows.slice(0,6).map((r,i) => `
-        <div class="mini-lb-row">
-          <span class="mini-rank">${emojis[i]}</span>
+        <div class="mini-lb-row" ${i >= 3 ? 'style="opacity:0.45;"' : ''}>
+          <span class="mini-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${emojis[i]}</span>
           <span class="mini-name">${truncateName(r.player_name)}</span>
           <span class="mini-time">${formatTime(r.time_seconds)}</span>
         </div>`).join('');
@@ -2029,7 +2029,8 @@ function renderLB(rows) {
   rows.forEach((r, i) => {
     const rc = i < 3 ? rankClass[i] : '';
     const label = i < 3 ? rankEmoji[i] : (i + 1);
-    html += `<tr>
+    const dimmed = i >= 3 ? ' style="opacity:0.45;"' : '';
+    html += `<tr${dimmed}>
       <td><span class="lb-rank ${rc}">${label}</span>${truncateName(r.player_name)}</td>
       <td>${formatTime(r.time_seconds)}</td>
     </tr>`;
@@ -2055,6 +2056,7 @@ async function submitScore() {
   const name = document.getElementById('player-name-input').value.trim();
   if (!name) { document.getElementById('player-name-input').focus(); return; }
   document.getElementById('name-overlay').classList.remove('show');
+  document.getElementById('play-again-btn').style.display = '';
   const qualified = await insertScore(name, timerSeconds);
   if (qualified === false) {
     // Not in top 6 — show a gentle toast
@@ -2076,6 +2078,7 @@ async function submitScore() {
 
 function skipScore() {
   document.getElementById('name-overlay').classList.remove('show');
+  document.getElementById('play-again-btn').style.display = '';
 }
 
 
@@ -2219,7 +2222,14 @@ function checkGameState() {
     document.getElementById('overlay').classList.add('show');
     launchConfetti();
     stopTimer();
-    setTimeout(promptName, 1200);
+    if (currentPlayerName === 'Guest') {
+      // Guest — show Play Again immediately, skip name entry
+      document.getElementById('play-again-btn').style.display = '';
+    } else {
+      // Named player — hide Play Again until they handle name entry
+      document.getElementById('play-again-btn').style.display = 'none';
+      setTimeout(promptName, 1200);
+    }
     incrementCompletions().then(loadSidebar);
   } else if (!hasAnyMove()) {
     document.getElementById('gameover-msg').textContent = `${n} marble${n!==1?'s':''} left — no moves available.`;
@@ -2295,7 +2305,7 @@ window.addEventListener('DOMContentLoaded', () => {
     <div id="lb-content"><div class="lb-loading">Loading…</div></div>
     <!-- Mobile stats (hidden on desktop) -->
     <div class="lb-stats-mobile" id="lb-stats-mobile">
-      <div class="sidebar-title">Total Games Played</div>
+      <div class="sidebar-title">Games Completed</div>
       <div class="stats-number" id="lb-total-mobile">—</div>
       <div class="stats-sublabel" style="margin-bottom:4px;"></div>
     </div>
