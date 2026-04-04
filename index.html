@@ -1397,22 +1397,23 @@
   }
   .sb-total-inline {
     font-size: 9px; letter-spacing: 1px;
-    color: rgba(255,255,255,0.85);
+    color: #ffd700;
     font-family: Georgia, serif;
     font-weight: normal;
   }
 
   .sidebar-title {
     font-family: Georgia, serif;
-    font-size: 9px; letter-spacing: 2.5px;
+    font-size: 11px; letter-spacing: 2.5px;
     text-transform: uppercase;
     color: rgba(255,255,255,0.85);
     margin-bottom: 12px;
     border-bottom: 1px solid rgba(200,168,60,0.14);
     padding-bottom: 8px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-align: center;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
   }
   .stats-number {
     font-family: 'Share Tech Mono', 'Courier New', monospace;
@@ -1579,7 +1580,7 @@
       <!-- Mobile stat panels — below reset -->
       <div class="mobile-stats">
         <div class="sidebar-card mobile-stat-card">
-          <div class="sidebar-title">The Top 6 of <span class="sb-total-inline" id="sb-total-inline-mobile">—</span> Games</div>
+          <div class="sidebar-title">The Best 6 of All Time<br>(<span class="sb-total-inline" id="sb-total-inline-mobile">—</span> Games)</div>
           <div id="sb-minilb-mobile"></div>
         </div>
       </div>
@@ -1597,7 +1598,7 @@
         </div>
       </div>
       <div class="sidebar-card">
-        <div class="sidebar-title">The Top 6 of <span class="sb-total-inline" id="sb-total-inline">—</span> Games</div>
+        <div class="sidebar-title">The Best 6 of All Time<br>(<span class="sb-total-inline" id="sb-total-inline">—</span> Games)</div>
         <div id="sb-minilb"><div class="mini-empty">Loading…</div></div>
       </div>
     </div>
