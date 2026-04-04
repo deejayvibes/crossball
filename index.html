@@ -375,18 +375,17 @@
     box-shadow: none;
     padding: 10px 0;
     margin-top: 10px;
-    color: #c8a050;
-    font-family: Georgia, serif;
+    color: #e0c880;
     font-size: 13px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
     cursor: pointer;
     opacity: 0.75;
     transition: color 0.2s, opacity 0.2s;
     display: block;
   }
   .reset-btn:hover {
-    color: #f0d060;
+    color: #fff;
     opacity: 1;
   }
   .reset-btn:active {
@@ -842,9 +841,13 @@
   @media (max-width: 999px) {
 
     body {
-      height: 100dvh;
+      height: auto;
+      min-height: 100dvh;
       overflow-x: hidden;
       overflow-y: auto;
+      background-attachment: scroll;
+      background-size: cover;
+      background-position: center top;
     }
 
     /* Board area — centred column, fills width */
@@ -1322,18 +1325,18 @@
   .welcome-guest {
     width: 100%; padding: 11px;
     background: transparent;
-    border: 1.5px solid rgba(122,204,90,0.55);
+    border: 1px solid rgba(200,168,60,0.35);
     border-radius: 50px;
-    color: rgba(122,204,90,0.80);
+    color: rgba(200,168,60,0.70);
     font-size: 14px; font-family: Georgia, serif;
     letter-spacing: 1px; cursor: pointer;
     display: block;
     transition: border-color 0.2s, color 0.2s, background 0.2s;
   }
   .welcome-guest:hover {
-    border-color: rgba(122,204,90,0.85);
-    color: #7acc5a;
-    background: rgba(122,204,90,0.06);
+    border-color: rgba(200,168,60,0.65);
+    color: #f0d060;
+    background: rgba(200,168,60,0.06);
   }
   .welcome-error {
     font-family: Georgia, serif;
@@ -1362,8 +1365,8 @@
     position: absolute;
     right: 32px;
     top: 0;
-    gap: 14px;
-    width: 220px;
+    gap: 18px;
+    width: 260px;
     flex-shrink: 0;
     padding-top: 18px;
   }
@@ -1376,6 +1379,13 @@
       0 4px 16px rgba(0,0,0,0.50),
       inset 0 1px 0 rgba(255,215,0,0.08);
   }
+  .sb-total-inline {
+    font-size: 9px; letter-spacing: 1px;
+    color: rgba(200,168,60,0.38);
+    font-family: Georgia, serif;
+    font-weight: normal;
+  }
+
   .sidebar-title {
     font-family: Georgia, serif;
     font-size: 9px; letter-spacing: 2.5px;
@@ -1384,6 +1394,9 @@
     margin-bottom: 12px;
     border-bottom: 1px solid rgba(200,168,60,0.14);
     padding-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .stats-number {
     font-family: 'Share Tech Mono', 'Courier New', monospace;
@@ -1545,15 +1558,11 @@
         </div>
       </div>
       <!-- Reset — plain text link below board -->
-      <button class="reset-btn reset-btn-tray inactive" onclick="resetGame()">Reset</button>
+      <button class="reset-btn reset-btn-tray inactive" onclick="resetGame()">Reset Board</button>
       <!-- Mobile stat panels — below reset -->
       <div class="mobile-stats">
         <div class="sidebar-card mobile-stat-card">
-          <div class="sidebar-title">Games Completed</div>
-          <div class="stats-number" id="sb-total-mobile2">—</div>
-        </div>
-        <div class="sidebar-card mobile-stat-card">
-          <div class="sidebar-title">🏆 Top 6 Players</div>
+          <div class="sidebar-title">🏆 Top 6 Players <span class="sb-total-inline" id="sb-total-inline-mobile"></span></div>
           <div id="sb-minilb-mobile"></div>
         </div>
       </div>
@@ -1571,11 +1580,7 @@
         </div>
       </div>
       <div class="sidebar-card">
-        <div class="sidebar-title">Games Completed</div>
-        <div class="stats-number" id="sb-total">—</div>
-      </div>
-      <div class="sidebar-card">
-        <div class="sidebar-title">🏆 Top 6 Players</div>
+        <div class="sidebar-title">🏆 Top 6 Players <span class="sb-total-inline" id="sb-total-inline"></span></div>
         <div id="sb-minilb"><div class="mini-empty">Loading…</div></div>
       </div>
     </div>
@@ -1588,7 +1593,7 @@
   <div class="tray-bank right" id="tray-right"></div>
 </div>
 <!-- Standalone reset for mobile (outside tray) -->
-<button class="reset-btn reset-btn-standalone inactive" onclick="resetGame()">Reset</button>
+<button class="reset-btn reset-btn-standalone inactive" onclick="resetGame()">Reset Board</button>
 
 <!-- Win confetti canvas -->
 <canvas id="confetti-canvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:102;display:none;"></canvas>
@@ -1943,10 +1948,10 @@ async function showLeaderboard() {
   document.getElementById('lb-content').innerHTML = '<div class="lb-loading">Loading…</div>';
   const [rows, stats] = await Promise.all([fetchLeaderboard(), fetchStats()]);
   renderLB(rows);
-  // Mobile stats
-  const total = stats ? (stats.total_completions + stats.total_attempts) : 0;
+  // Mobile inline total in leaderboard
+  const totalLB = stats ? (stats.total_completions + stats.total_attempts) : 0;
   const mobileEl = document.getElementById('lb-total-mobile');
-  if (mobileEl) mobileEl.textContent = total > 0 ? formatCount(total) : '0';
+  if (mobileEl) mobileEl.textContent = totalLB > 0 ? formatCount(totalLB) : '0';
 }
 
 
@@ -1988,10 +1993,11 @@ async function loadSidebar() {
   const totalStr = total > 0 ? formatCount(total) : '0';
 
   // Desktop sidebar
-  const sbTotal = document.getElementById('sb-total');
-  if (sbTotal) sbTotal.textContent = totalStr;
-  const sbTotalM = document.getElementById('sb-total-mobile2');
-  if (sbTotalM) sbTotalM.textContent = totalStr;
+  // Inline total in Top 6 title
+  ['sb-total-inline','sb-total-inline-mobile'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = total > 0 ? `of ${formatCount(total)} players` : '';
+  });
 
   // Mini leaderboard (desktop)
   const miniEl = document.getElementById('sb-minilb');
@@ -2002,10 +2008,10 @@ async function loadSidebar() {
     } else {
       const emojis = ['🥇','🥈','🥉','4','5','6'];
       el.innerHTML = rows.slice(0,6).map((r,i) => `
-        <div class="mini-lb-row" ${i >= 3 ? 'style="opacity:0.45;"' : ''}>
+        <div class="mini-lb-row">
           <span class="mini-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${emojis[i]}</span>
-          <span class="mini-name">${truncateName(r.player_name)}</span>
-          <span class="mini-time">${formatTime(r.time_seconds)}</span>
+          <span class="mini-name" ${i >= 3 ? 'style="opacity:0.45;"' : ''}>${truncateName(r.player_name)}</span>
+          <span class="mini-time" ${i >= 3 ? 'style="opacity:0.45;"' : ''}>${formatTime(r.time_seconds)}</span>
         </div>`).join('');
     }
   });
@@ -2045,10 +2051,10 @@ function renderLB(rows) {
   rows.forEach((r, i) => {
     const rc = i < 3 ? rankClass[i] : '';
     const label = i < 3 ? rankEmoji[i] : (i + 1);
-    const dimmed = i >= 3 ? ' style="opacity:0.45;"' : '';
-    html += `<tr${dimmed}>
-      <td><span class="lb-rank ${rc}">${label}</span>${truncateName(r.player_name)}</td>
-      <td>${formatTime(r.time_seconds)}</td>
+    const dimStyle = i >= 3 ? ' style="opacity:0.45;"' : '';
+    html += `<tr>
+      <td><span class="lb-rank ${rc}">${label}</span><span${dimStyle}>${truncateName(r.player_name)}</span></td>
+      <td${dimStyle}>${formatTime(r.time_seconds)}</td>
     </tr>`;
   });
   html += '</tbody></table>';
@@ -2321,9 +2327,6 @@ window.addEventListener('DOMContentLoaded', () => {
     <div id="lb-content"><div class="lb-loading">Loading…</div></div>
     <!-- Mobile stats (hidden on desktop) -->
     <div class="lb-stats-mobile" id="lb-stats-mobile">
-      <div class="sidebar-title">Games Completed</div>
-      <div class="stats-number" id="lb-total-mobile">—</div>
-      <div class="stats-sublabel" style="margin-bottom:4px;"></div>
     </div>
     <button class="lb-close" onclick="hideLB()">Close</button>
   </div>
