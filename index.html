@@ -86,8 +86,10 @@
     background: none; border: none;
     color: #e0c880; font-size: 13px; cursor: pointer; letter-spacing: 1px;
     text-decoration: none; padding: 0;
+    opacity: 0.60;
+    transition: color 0.2s, opacity 0.2s;
   }
-  .instructions-btn:hover { color: #fff; }
+  .instructions-btn:hover { color: #fff; opacity: 1; }
 
   /* nav removed */
 
@@ -1060,7 +1062,7 @@
     background: none; border: none;
     color: #e0c880; font-size: 13px; cursor: pointer; letter-spacing: 1px;
     text-decoration: none; padding: 0;
-    opacity: 0.85;
+    opacity: 0.60;
     transition: color 0.2s, opacity 0.2s;
   }
   .leaderboard-btn:hover { color: #fff; opacity: 1; }
@@ -1561,6 +1563,40 @@
     top: 0;
   }
 
+
+  /* ─── Share button ─── */
+  .share-btn {
+    background: none; border: none;
+    color: #e0c880; font-size: 13px; cursor: pointer; letter-spacing: 1px;
+    text-decoration: none; padding: 0;
+    display: flex; align-items: center; gap: 6px;
+    opacity: 0.60;
+    transition: color 0.2s, opacity 0.2s;
+  }
+  .share-btn:hover { color: #fff; opacity: 1; }
+  .share-btn svg { flex-shrink: 0; }
+
+  /* Share toast confirmation */
+  @keyframes shareToastIn  { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes shareToastOut { from { opacity:1; } to { opacity:0; } }
+  .share-toast {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 24px);
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #1a1208 0%, #120e04 100%);
+    color: #a8e870;
+    font-family: Georgia, serif; font-size: 12px;
+    padding: 6px 12px; border-radius: 6px;
+    border: 1px solid rgba(100,200,50,0.35);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.50);
+    pointer-events: none; z-index: 400;
+    white-space: nowrap;
+    opacity: 0;
+  }
+  .share-toast.show { animation: shareToastIn 0.2s ease forwards; }
+  .share-toast.hide { animation: shareToastOut 0.3s ease forwards; }
+
 </style>
 </head>
 <body>
@@ -1568,7 +1604,19 @@
 <!-- Top bar -->
 <div class="topbar">
   <div class="welcome-logo" style="margin-bottom:0;">Cross<span>+</span>Ball</div>
-  <button class="instructions-btn" onclick="showInstructions()">Get Started</button>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <div style="position:relative;">
+      <button class="share-btn" onclick="shareGame()" title="Share this game">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+        Share
+      </button>
+      <div class="share-toast" id="share-toast">✓ Share link copied.</div>
+    </div>
+    <button class="instructions-btn" onclick="showInstructions()">Get Started</button>
+  </div>
 </div>
 
 <!-- Invalid move banner — slides in below header -->
@@ -2244,6 +2292,50 @@ function skipScore() {
 // ── Hamburger menu ───────────────────────────────────────────────────────────
 
 
+
+// ── Share button ─────────────────────────────────────────────────────────────
+async function shareGame() {
+  const url = 'https://deejayvibes.github.io/crossball/';
+
+  // Only use native share on mobile devices
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile && navigator.share) {
+    try {
+      await navigator.share({
+        title: 'Cross+Ball — Peg Solitaire',
+        text: 'Can you solve Cross+Ball? Leave just one marble on the board!',
+        url
+      });
+      return;
+    } catch(e) { return; }
+  }
+
+  // Desktop/laptop: always copy to clipboard
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch(e) {
+    const ta = document.createElement('textarea');
+    ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  showShareToast();
+}
+
+let shareToastTimer = null;
+function showShareToast() {
+  const el = document.getElementById('share-toast');
+  if (shareToastTimer) clearTimeout(shareToastTimer);
+  el.classList.remove('hide');
+  el.classList.add('show');
+  shareToastTimer = setTimeout(() => {
+    el.classList.remove('show');
+    el.classList.add('hide');
+    shareToastTimer = setTimeout(() => el.classList.remove('hide'), 320);
+  }, 2000);
+}
+
 // ── Onboarding hint pulse ────────────────────────────────────────────────────
 let hintTimeout = null;
 let hintsActive = false;
@@ -2530,6 +2622,7 @@ window.addEventListener('DOMContentLoaded', () => {
     <button class="welcome-guest" onclick="startAsGuest()">Continue as Guest</button>
   </div>
 </div>
+
 
 </body>
 </html>
