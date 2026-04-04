@@ -1428,6 +1428,7 @@
   .mini-lb-row:last-child { border-bottom: none; }
   .mini-rank {
     font-size: 14px; flex-shrink: 0; width: 20px; text-align: center;
+    color: #d0b880;
   }
   .mini-name {
     font-size: 12px; color: #d0b880;
@@ -1526,7 +1527,7 @@
 
 <!-- Top bar -->
 <div class="topbar">
-  <div class="logo"><span class="box">C</span>ross<span class="cross">+</span>Ball</div>
+  <div class="welcome-logo" style="margin-bottom:0;">Cross<span>+</span>Ball</div>
   <button class="instructions-btn" onclick="showInstructions()">Instructions</button>
 </div>
 
@@ -2009,7 +2010,7 @@ async function loadSidebar() {
       const emojis = ['🥇','🥈','🥉','4','5','6'];
       el.innerHTML = rows.slice(0,6).map((r,i) => `
         <div class="mini-lb-row">
-          <span class="mini-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${emojis[i]}</span>
+          <span class="mini-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}" ${i >= 3 ? 'style="opacity:0.45;"' : ''}>${emojis[i]}</span>
           <span class="mini-name" ${i >= 3 ? 'style="opacity:0.45;"' : ''}>${truncateName(r.player_name)}</span>
           <span class="mini-time" ${i >= 3 ? 'style="opacity:0.45;"' : ''}>${formatTime(r.time_seconds)}</span>
         </div>`).join('');
@@ -2051,10 +2052,10 @@ function renderLB(rows) {
   rows.forEach((r, i) => {
     const rc = i < 3 ? rankClass[i] : '';
     const label = i < 3 ? rankEmoji[i] : (i + 1);
-    const dimStyle = i >= 3 ? ' style="opacity:0.45;"' : '';
+    const nameStyle = i >= 3 ? ' style="opacity:0.45;"' : '';
     html += `<tr>
-      <td><span class="lb-rank ${rc}"${dimStyle}>${label}</span><span${dimStyle}>${truncateName(r.player_name)}</span></td>
-      <td${dimStyle}>${formatTime(r.time_seconds)}</td>
+      <td><span class="lb-rank ${rc}" style="color:#d0b880;">${label}</span><span${nameStyle}>${truncateName(r.player_name)}</span></td>
+      <td><span${nameStyle}>${formatTime(r.time_seconds)}</span></td>
     </tr>`;
   });
   html += '</tbody></table>';
