@@ -2772,7 +2772,7 @@ function renderRecentPlayers(rows, elId) {
       const time = formatTime(r.time_seconds);
       const icon = r.marbles_left === 1
         ? '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#4fc3f7" stroke-width="1.2" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;flex-shrink:0;"><polygon points="8,1 15,6 8,15 1,6"/><line x1="1" y1="6" x2="15" y2="6"/><line x1="8" y1="1" x2="5" y2="6"/><line x1="8" y1="1" x2="11" y2="6"/></svg>'
-        : '<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;flex-shrink:0;"><circle cx="12" cy="12" r="10" fill="#c0392b"/><circle cx="12" cy="12" r="8" fill="#e74c3c"/><circle cx="9" cy="9" r="2.5" fill="rgba(255,255,255,0.25)"/><ellipse cx="12" cy="12" rx="7" ry="7" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/></svg>';
+        : '<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;flex-shrink:0;"><circle cx="12" cy="12" r="10" fill="#1a7a3a"/><circle cx="12" cy="12" r="8" fill="#27ae60"/><circle cx="9" cy="9" r="2.5" fill="rgba(255,255,255,0.25)"/><ellipse cx="12" cy="12" rx="7" ry="7" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/></svg>';
       html += `<div class="recent-row">
         <span class="recent-name">${icon}<span>${nameMarbles}</span></span>
         <span class="recent-time">${time}</span>
