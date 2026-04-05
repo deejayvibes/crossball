@@ -1233,7 +1233,7 @@
     background: none; border: none;
     color: rgba(200,168,60,0.45); font-size: 12px;
     font-family: Georgia, serif; cursor: pointer;
-    margin-top: 12px; display: block; width: 100%;
+    margin-top: 24px; display: block; width: 100%;
     letter-spacing: 0.5px;
   }
   .name-skip:hover { color: rgba(200,168,60,0.70); }
@@ -2203,6 +2203,22 @@ function renderBoard() {
           marble.dataset.c = c;
           if (isSel) marble.classList.add('selected');
           marble.addEventListener('click', () => selectMarble(r, c));
+
+          // Long press = tap on mobile touch devices
+          let _lpTimer = null;
+          marble.addEventListener('touchstart', e => {
+            _lpTimer = setTimeout(() => {
+              e.preventDefault();
+              selectMarble(r, c);
+              _lpTimer = null;
+            }, 400); // 400ms long press
+          }, { passive: true });
+          marble.addEventListener('touchend', () => {
+            if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; }
+          });
+          marble.addEventListener('touchmove', () => {
+            if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; }
+          }, { passive: true });
           cell.appendChild(marble);
         } else if (board[r][c] === EMPTY) {
           const hole = document.createElement('div');
@@ -2334,7 +2350,7 @@ async function startWithName() {
 
   // First check static list (instant), then OpenAI (async)
   if (containsProfanity(raw)) {
-    errEl.textContent = 'These words are not allowed as names.';
+    errEl.textContent = 'Content not supported. Try something else!';
     input.focus();
     return;
   }
@@ -2351,7 +2367,7 @@ async function startWithName() {
   playBtn.disabled = false;
 
   if (flagged) {
-    errEl.textContent = 'These words are not allowed as names.';
+    errEl.textContent = 'Content not supported. Try something else!';
     input.focus();
     return;
   }
@@ -2624,7 +2640,7 @@ async function submitScore() {
 
     // Static profanity check
     if (containsProfanity(name)) {
-      nameErr.textContent = 'These words are not allowed as names.';
+      nameErr.textContent = 'Content not supported. Try something else!';
       document.getElementById('player-name-input').focus();
       return;
     }
@@ -2640,7 +2656,7 @@ async function submitScore() {
     submitBtn.disabled = false;
 
     if (flagged) {
-      nameErr.textContent = 'These words are not allowed as names.';
+      nameErr.textContent = 'Content not supported. Try something else!';
       document.getElementById('player-name-input').focus();
       return;
     }
