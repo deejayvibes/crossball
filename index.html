@@ -2890,7 +2890,11 @@ function initBoardGestureDetection() {
     const t = e.changedTouches[0];
     const dx = Math.abs(t.clientX - _dragStart.x);
     const dy = Math.abs(t.clientY - _dragStart.y);
-    if (dx > 10 || dy > 10) showSwipeToast('Tap & select a marble to move. No swiping.');
+    // Only trigger if horizontal movement dominates (not a page scroll)
+    // and movement is significant
+    if ((dx > 10 || dy > 10) && dx >= dy) {
+      showSwipeToast('Tap & select a marble to move. No swiping.');
+    }
     _dragStart = null;
   }, { passive: true });
 
