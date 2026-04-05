@@ -1848,8 +1848,7 @@
   }
 
 
-  /* Gamer number shimmer */
-  .gamer-num {
+    .gamer-num {
     background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff, #ff6b6b);
     background-size: 300% 100%;
     -webkit-background-clip: text;
@@ -2864,6 +2863,7 @@ let _dragStart = null;
 let _swipeToastTimer = null;
 
 function showSwipeToast(msg) {
+  if (countMarbles() <= 1) return; // suppress when only 1 marble left
   const el = document.getElementById('swipe-toast');
   document.getElementById('swipe-toast-msg').textContent = msg || 'Tap, don\'t swipe/drag.';
   if (_swipeToastTimer) clearTimeout(_swipeToastTimer);
@@ -3011,6 +3011,7 @@ function cancelHintAfterError() {
 }
 
 function showInvalidToast() {
+  if (countMarbles() <= 1) return; // suppress when only 1 marble left
   const el = document.getElementById('invalid-toast');
   if (toastTimer) clearTimeout(toastTimer);
   el.style.transform = 'translateX(-50%) translateY(0)';
