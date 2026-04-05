@@ -1328,6 +1328,7 @@
     cursor: pointer; border-radius: 50px;
     box-shadow: 0 4px 20px rgba(255,200,0,0.40),
                 inset 0 1px 0 rgba(255,255,255,0.35);
+    margin-top: 20px;
     margin-bottom: 12px;
     transition: transform 0.15s, box-shadow 0.15s;
   }
@@ -1345,6 +1346,7 @@
     font-size: 14px; font-family: Georgia, serif;
     letter-spacing: 1px; cursor: pointer;
     display: block;
+    margin-bottom: 24px;
     transition: border-color 0.2s, color 0.2s, background 0.2s;
   }
   .welcome-guest:hover {
@@ -1841,6 +1843,31 @@
     pointer-events: none;
   }
 
+
+  /* Gamer number shimmer */
+  .gamer-num {
+    background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff, #ff6b6b);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 2.5s linear infinite;
+    font-weight: bold;
+    font-size: 15px;
+  }
+
+
+  /* Medal glare animation for top 3 */
+  @keyframes medalGlare {
+    0%   { filter: brightness(1) drop-shadow(0 0 2px rgba(255,220,80,0.3)); }
+    40%  { filter: brightness(1.6) drop-shadow(0 0 8px rgba(255,230,100,0.9)); }
+    60%  { filter: brightness(1.6) drop-shadow(0 0 8px rgba(255,230,100,0.9)); }
+    100% { filter: brightness(1) drop-shadow(0 0 2px rgba(255,220,80,0.3)); }
+  }
+  .mini-rank.gold   { animation: medalGlare 2.4s ease-in-out infinite; }
+  .mini-rank.silver { animation: medalGlare 2.4s ease-in-out infinite 0.6s; }
+  .mini-rank.bronze { animation: medalGlare 2.4s ease-in-out infinite 1.2s; }
+
 </style>
 </head>
 <body>
@@ -2247,9 +2274,9 @@ async function showWelcome() {
     const stats = await fetchStats();
     const total = stats ? (stats.total_completions + stats.total_attempts) : 0;
     const gamerNum = (total + 866 + 1) % (999999999 + 1);
-    document.getElementById('welcome-label').textContent = `You are gamer #${gamerNum.toLocaleString()}`;
+    document.getElementById('welcome-label').innerHTML = `You are gamer <span class="gamer-num">#${gamerNum.toLocaleString()}</span>`;
   } catch(e) {
-    document.getElementById('welcome-label').textContent = 'You are gamer #867';
+    document.getElementById('welcome-label').innerHTML = 'You are gamer <span class="gamer-num">#867</span>';
   }
 }
 
@@ -3036,13 +3063,13 @@ window.addEventListener('DOMContentLoaded', () => {
   <div class="instr-box">
     <h2>How to Play</h2>
     <ul class="instr-steps">
-      <li><span class="num">1</span><span>Click a marble to select it — valid moves highlight green.</span></li>
+      <li><span class="num">1</span><span>Click a marble to select it - valid moves highlight green.</span></li>
       <li><span class="num">2</span><span>Click a highlighted hole to jump over the marble between.</span></li>
       <li><span class="num">3</span><span>The jumped marble is removed to the tray below.</span></li>
-      <li><span class="num">4</span><span>Only jumps — up, down, left, right. No diagonal moves.</span></li>
+      <li><span class="num">4</span><span>Only jumps - up, down, left, right. No diagonal moves.</span></li>
       <li><span class="num">5</span><span>Click the selected marble again to deselect.</span></li>
     </ul>
-    <div class="instr-goal">🏆 Goal — leave exactly 1 marble on the board</div>
+    <div class="instr-goal">🏆 Goal - leave exactly 1 marble on the board</div>
     <button class="instr-close" onclick="hideInstructions()">Got it</button>
   </div>
 </div>
