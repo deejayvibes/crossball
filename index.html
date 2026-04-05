@@ -1906,7 +1906,7 @@
   transition:transform 0.3s ease, opacity 0.3s ease;opacity:0;
   display:flex;align-items:center;gap:8px;">
   <svg width="15" height="15" viewBox="0 0 71 92" fill="#ffd93d" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><path d="M9.92088 26.168C9.19041 26.168 8.46387 25.8985 7.90527 25.3399L0.834975 18.2696C-0.278325 17.1563 -0.278325 15.3399 0.834975 14.2266C1.94827 13.1133 3.76468 13.1133 4.87797 14.2266L11.9483 21.2969C13.0616 22.4102 13.0616 24.2266 11.9483 25.3399C11.3897 25.8985 10.6474 26.168 9.92088 26.168ZM35.1789 15.711C36.7492 15.711 38.0344 14.4258 38.0344 12.8555V2.8555C38.0344 1.2852 36.7492 0 35.1789 0C33.6086 0 32.3234 1.2852 32.3234 2.8555V12.8555C32.3234 14.4258 33.6086 15.711 35.1789 15.711ZM69.5229 14.2266C68.4096 13.1133 66.5932 13.1133 65.4799 14.2266L58.4096 21.2969C57.2963 22.4102 57.2963 24.2266 58.4096 25.3399C58.9682 25.8985 59.7104 26.168 60.4369 26.168C61.1673 26.168 61.8939 25.8985 62.4525 25.3399L69.5228 18.2696C70.6361 17.1563 70.6362 15.3399 69.5229 14.2266ZM60.894 48.5666C60.894 57.8791 56.0073 66.2656 48.039 70.8366V78.5671C48.039 85.653 42.2695 91.4221 35.184 91.4221C28.0981 91.4221 22.329 85.6487 22.329 78.5671V70.8366C14.3563 66.2663 9.47397 57.8796 9.47397 48.5666C9.47397 34.3946 21.017 22.8516 35.189 22.8516C49.361 22.8516 60.904 34.3946 60.904 48.5666H60.894ZM49.351 46.7814C48.5502 40.297 43.4526 35.1954 36.964 34.3944C35.3937 34.1796 33.964 35.3085 33.7765 36.8671C33.5773 38.4374 34.6905 39.8671 36.2492 40.0663C40.1476 40.5507 43.1906 43.5936 43.6789 47.496C43.8664 48.9374 45.093 49.996 46.5227 49.996C46.636 49.996 46.7531 49.996 46.8781 49.9687C48.4367 49.7812 49.5502 48.3556 49.351 46.7814Z"/></svg>
-  <span id="invalid-toast-msg">Invalid move! Try again or see 'Get Started'.</span>
+  <span id="invalid-toast-msg"></span>
 </div>
 <!-- Main board area -->
 <div class="main">
@@ -2664,9 +2664,6 @@ async function submitScore() {
     el.style.opacity = '1';
     toastTimer = setTimeout(() => {
       el.classList.remove('show');
-      el.classList.add('hide');
-      el.querySelector('svg').style.display = '';
-      el.childNodes[el.childNodes.length - 1].textContent = ' Invalid move. Please refer to the Get Started guide.';
       toastTimer = setTimeout(() => el.classList.remove('hide'), 320);
     }, 3000);
   }
@@ -2864,6 +2861,7 @@ let _swipeToastTimer = null;
 
 function showSwipeToast(msg) {
   if (countMarbles() <= 1) return; // suppress when only 1 marble left
+  if (document.getElementById('overlay').classList.contains('show')) return; // win modal active
   const el = document.getElementById('swipe-toast');
   document.getElementById('swipe-toast-msg').textContent = msg || 'Tap, don\'t swipe/drag.';
   if (_swipeToastTimer) clearTimeout(_swipeToastTimer);
@@ -2924,7 +2922,7 @@ function resetIdleHintTimer() {
   // Only run if game is active (timer started)
   if (!timerStarted) return;
   _idleHintTimer = setTimeout(() => {
-    if (!hintsActive && timerStarted && hasAnyMove()) {
+    if (!hintsActive && timerStarted && hasAnyMove() && !document.getElementById('overlay').classList.contains('show')) {
       showHintsAllAtOnce();
     }
   }, 10000);
@@ -3012,7 +3010,9 @@ function cancelHintAfterError() {
 
 function showInvalidToast() {
   if (countMarbles() <= 1) return; // suppress when only 1 marble left
+  if (document.getElementById('overlay').classList.contains('show')) return; // win modal active
   const el = document.getElementById('invalid-toast');
+  document.getElementById('invalid-toast-msg').textContent = "Invalid move! Try again or see 'Get Started'.";
   if (toastTimer) clearTimeout(toastTimer);
   el.style.transform = 'translateX(-50%) translateY(0)';
   el.style.opacity = '1';
@@ -3023,6 +3023,7 @@ function showInvalidToast() {
 }
 
 function selectMarble(r, c) {
+  if (document.getElementById('overlay').classList.contains('show')) return;
   if (hintsActive) clearHints();
   resetIdleHintTimer(); // reset idle timer on any selection
   if (selected && selected.r === r && selected.c === c) {
