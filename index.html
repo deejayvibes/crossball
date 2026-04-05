@@ -1204,6 +1204,10 @@
     font-family: Georgia, serif; font-size: 13px;
     color: #a8a070; margin-bottom: 20px;
   }
+  .name-input::placeholder {
+    color: rgba(240,216,120,0.30);
+    font-style: italic;
+  }
   .name-input {
     width: 100%; padding: 10px 14px;
     background: rgba(255,255,255,0.06);
@@ -1993,6 +1997,17 @@
   </div>
 </div>
 
+<!-- Swipe toast -->
+<div id="swipe-toast" style="
+  position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);
+  background:rgba(20,14,4,0.92);color:#e0c880;
+  font-family:Georgia,serif;font-size:13px;letter-spacing:0.5px;
+  padding:10px 22px;border-radius:50px;
+  border:1px solid rgba(200,168,60,0.40);
+  box-shadow:0 4px 20px rgba(0,0,0,0.60);
+  white-space:nowrap;z-index:500;pointer-events:none;
+  transition:transform 0.3s ease, opacity 0.3s ease;opacity:0;
+">Tap, don't swipe/drag.</div>
 <!-- Bottom tray -->
 <div class="tray-outer">
   <div class="tray-bank" id="tray-all"></div>
@@ -2388,11 +2403,18 @@ async function insertScore(name, seconds) {
       return false; // not in top 6
     }
   }
-  await fetch(SB_URL + "/rest/v1/leaderboard", {
+  const insertRes = await fetch(SB_URL + "/rest/v1/leaderboard", {
     method: "POST",
-    headers: { ...sbHeaders(), "Prefer": "return=minimal" },
+    headers: { ...sbHeaders(), "Prefer": "return=representation", "Content-Type": "application/json" },
     body: JSON.stringify({ player_name: name, time_seconds: seconds })
   });
+  const insertText = await insertRes.text();
+  console.log("Leaderboard insert status:", insertRes.status, "response:", insertText);
+  if (!insertRes.ok) {
+    console.error("Leaderboard insert FAILED for name:", name, "time:", seconds);
+    return false;
+  }
+  loadSidebar();
   return true;
 }
 
@@ -2567,56 +2589,62 @@ function promptName() {
   if (m > 0 || h > 0) parts.push(m + 'm');
   parts.push(s + 's');
   document.getElementById('name-time-display').textContent = 'Your time: ' + parts.join(' ') + ' ⏱';
-  document.getElementById('player-name-input').value = currentPlayerName !== 'Guest' ? currentPlayerName : 'Guest';
+  const nameInput = document.getElementById('player-name-input');
+  if (currentPlayerName !== 'Guest') {
+    nameInput.value = currentPlayerName;
+    nameInput.placeholder = 'Enter your name';
+  } else {
+    nameInput.value = '';
+    nameInput.placeholder = 'Guest';
+  }
   document.getElementById('name-overlay').classList.add('show');
   setTimeout(() => document.getElementById('player-name-input').focus(), 100);
 }
 
 async function submitScore() {
-  const name = document.getElementById('player-name-input').value.trim();
+  const rawInput = document.getElementById('player-name-input').value.trim();
+  const name = rawInput || 'Guest'; // default to 'Guest' if left empty
   const nameErr = document.getElementById('name-error');
 
-  if (!name) { document.getElementById('player-name-input').focus(); return; }
+  // Skip all checks if name is Guest — always allow it
+  if (name !== 'Guest') {
+    // Reserved name check
+    if (isReservedName(name)) {
+      nameErr.textContent = 'That name is taken! Please choose another.';
+      document.getElementById('player-name-input').focus();
+      return;
+    }
 
-  // Reserved name check
-  if (isReservedName(name)) {
-    nameErr.textContent = 'That name is taken! Please choose another.';
-    document.getElementById('player-name-input').focus();
-    return;
-  }
+    // Static profanity check
+    if (containsProfanity(name)) {
+      nameErr.textContent = 'These words are not allowed as names.';
+      document.getElementById('player-name-input').focus();
+      return;
+    }
 
-  // Static profanity check
-  if (containsProfanity(name)) {
-    nameErr.textContent = 'These words are not allowed as names.';
-    document.getElementById('player-name-input').focus();
-    return;
-  }
+    // OpenAI moderation check
+    nameErr.textContent = '';
+    const submitBtn = document.querySelector('.name-submit');
+    const origText = submitBtn.textContent;
+    submitBtn.textContent = 'Checking…';
+    submitBtn.disabled = true;
+    const flagged = await checkModeration(name);
+    submitBtn.textContent = origText;
+    submitBtn.disabled = false;
 
-  // OpenAI moderation check
-  nameErr.textContent = '';
-  const submitBtn = document.querySelector('.name-submit');
-  const origText = submitBtn.textContent;
-  submitBtn.textContent = 'Checking…';
-  submitBtn.disabled = true;
-  const flagged = await checkModeration(name);
-  submitBtn.textContent = origText;
-  submitBtn.disabled = false;
-
-  if (flagged) {
-    nameErr.textContent = 'These words are not allowed as names.';
-    document.getElementById('player-name-input').focus();
-    return;
+    if (flagged) {
+      nameErr.textContent = 'These words are not allowed as names.';
+      document.getElementById('player-name-input').focus();
+      return;
+    }
   }
 
   nameErr.textContent = '';
   document.getElementById('name-overlay').classList.remove('show');
   document.getElementById('play-again-btn').style.display = '';
 
-  // Update recent_players with real name immediately
-  if (window._lastRecentId && name) {
-    console.log("Updating recent player id:", window._lastRecentId, "name:", name);
-    updateRecentPlayerName(window._lastRecentId, name); // fire and forget — don't await
-  }
+  // Save to recent_players now that player confirmed their name
+  await insertRecentPlayerAndTrack(name, 1, timerSeconds, 'win');
 
   const qualified = await insertScore(name, timerSeconds);
   if (qualified === false) {
@@ -2640,6 +2668,9 @@ async function submitScore() {
 function skipScore() {
   document.getElementById('name-overlay').classList.remove('show');
   document.getElementById('play-again-btn').style.display = '';
+  // Player skipped — do not save to leaderboard or recent finishers
+  window._pendingWin = null;
+  window._lastRecentId = null;
 }
 
 
@@ -2819,6 +2850,58 @@ function renderRecentPlayers(rows, elId) {
 
 
 
+
+// ── Swipe / drag detection on board ──────────────────────────────────────────
+let _dragStart = null;
+let _swipeToastTimer = null;
+
+function showSwipeToast(msg) {
+  const el = document.getElementById('swipe-toast');
+  el.textContent = msg || 'Tap, don\'t swipe/drag.';
+  if (_swipeToastTimer) clearTimeout(_swipeToastTimer);
+  el.style.transform = 'translateX(-50%) translateY(0)';
+  el.style.opacity = '1';
+  _swipeToastTimer = setTimeout(() => {
+    el.style.transform = 'translateX(-50%) translateY(-80px)';
+    el.style.opacity = '0';
+  }, 3000);
+}
+
+function initBoardGestureDetection() {
+  const board = document.getElementById('board');
+  if (!board) return;
+
+  // Touch events (mobile swipe)
+  board.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    _dragStart = { x: t.clientX, y: t.clientY, touch: true };
+  }, { passive: true });
+
+  board.addEventListener('touchend', e => {
+    if (!_dragStart) return;
+    const t = e.changedTouches[0];
+    const dx = Math.abs(t.clientX - _dragStart.x);
+    const dy = Math.abs(t.clientY - _dragStart.y);
+    if (dx > 10 || dy > 10) showSwipeToast('Tap on the marble to move. No swiping.');
+    _dragStart = null;
+  }, { passive: true });
+
+  // Mouse events (desktop drag)
+  board.addEventListener('mousedown', e => {
+    _dragStart = { x: e.clientX, y: e.clientY, touch: false };
+  });
+
+  board.addEventListener('mouseup', e => {
+    if (!_dragStart) return;
+    const dx = Math.abs(e.clientX - _dragStart.x);
+    const dy = Math.abs(e.clientY - _dragStart.y);
+    if (dx > 8 || dy > 8) showSwipeToast('Select the marble to move. No dragging.');
+    _dragStart = null;
+  });
+
+  board.addEventListener('mouseleave', () => { _dragStart = null; });
+}
+
 function showAbout() { document.getElementById('about-overlay').classList.add('show'); }
 function hideAbout() { document.getElementById('about-overlay').classList.remove('show'); }
 
@@ -2994,6 +3077,7 @@ function resetGame() {
   invalidClickCount = 0;
   document.querySelectorAll('.reset-btn, .reset-capsule').forEach(b => b.classList.add('inactive'));
   renderBoard();
+  initBoardGestureDetection();
   setTimeout(showHints, 400);
   renderTray();
 }
@@ -3028,14 +3112,15 @@ async function checkGameState() {
     if (currentPlayerName === 'Guest') {
       // Save as 'Guest' — display assigns Z/Y/X by position
       window._chosenGuestName = 'Guest';
-      await insertRecentPlayerAndTrack('Guest', 1, timerSeconds, 'win');
     } else {
       window._chosenGuestName = recentName;
-      await insertRecentPlayerAndTrack(recentName, 1, timerSeconds, 'win');
     }
+    // Store win data for later — only save to DB after player decides (save or skip)
+    window._pendingWin = { marbles: 1, time: timerSeconds };
     // Hide Play Again until name entry is handled
     document.getElementById('play-again-btn').style.display = 'none';
     setTimeout(promptName, 1200);
+    incrementCompletions().then(loadSidebar);
   } else if (!hasAnyMove()) {
     // No valid moves left — game over
     document.getElementById('gameover-overlay').classList.add('show');
