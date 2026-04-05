@@ -1902,7 +1902,7 @@
       <!-- Mobile stat panels — below reset -->
       <div class="mobile-stats">
         <div class="sidebar-card mobile-stat-card">
-          <div class="sidebar-title">The Best 6 of All Time<br><span style="text-transform:none;color:#d4c040;">(<span class="sb-total-inline" id="sb-total-inline-mobile">—</span> Games)</span></div>
+          <div class="sidebar-title">Top 6 Winners of All Time<br><span style="text-transform:none;color:#d4c040;">(<span class="sb-total-inline" id="sb-total-inline-mobile">—</span> Games)</span></div>
           <div id="sb-minilb-mobile"></div>
         </div>
         <div class="sidebar-card mobile-stat-card">
@@ -1931,7 +1931,7 @@
         </div>
       </div>
       <div class="sidebar-card">
-        <div class="sidebar-title">The Best 6 of All Time<br><span style="text-transform:none;color:#d4c040;">(<span class="sb-total-inline" id="sb-total-inline">—</span> Games)</span></div>
+        <div class="sidebar-title">Top 6 Winners of All Time<br><span style="text-transform:none;color:#d4c040;">(<span class="sb-total-inline" id="sb-total-inline">—</span> Games)</span></div>
         <div id="sb-minilb"><div class="mini-lb-row">
           <span class="mini-rank gold">🥇</span>
           <span class="mini-name"><span class="lb-placeholder-bar" style="width:50px;height:9px;border-radius:4px;display:inline-block;"></span></span>
@@ -2768,7 +2768,8 @@ function renderRecentPlayers(rows, elId) {
       const storedName = /^Guest(\s+\d+)?$/.test(r.player_name) ? 'Guest' : r.player_name;
       const rawName = storedName.length > 12 ? storedName.slice(0, 12) + '…' : storedName;
       const marbleWord = r.marbles_left === 1 ? 'marble' : 'marbles';
-      const nameMarbles = `${rawName} <span style="opacity:0.50;font-size:11px;">(${r.marbles_left} ${marbleWord})</span>`;
+      const marbleLabel = r.marbles_left === 1 ? 'Winner' : `${r.marbles_left} ${marbleWord}`;
+      const nameMarbles = `${rawName} <span style="opacity:0.50;font-size:11px;">(${marbleLabel})</span>`;
       const time = formatTime(r.time_seconds);
       const icon = r.marbles_left === 1
         ? '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#4fc3f7" stroke-width="1.2" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;flex-shrink:0;"><polygon points="8,1 15,6 8,15 1,6"/><line x1="1" y1="6" x2="15" y2="6"/><line x1="8" y1="1" x2="5" y2="6"/><line x1="8" y1="1" x2="11" y2="6"/></svg>'
