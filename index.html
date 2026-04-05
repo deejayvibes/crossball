@@ -2658,8 +2658,7 @@ async function submitScore() {
     // Not in top 6 — show a gentle toast
     const el = document.getElementById('invalid-toast');
     el.querySelector('svg').style.display = 'none';
-    el.childNodes[el.childNodes.length - 1].textContent = 'Great game! Score didn\'t make the top 6 this time.';
-    document.getElementById('invalid-toast-msg').textContent = "Great game! Score didn't make the top 6 this time.";
+    document.getElementById('invalid-toast-msg').textContent = "Great game! The top 6 should be worried.";
     if (toastTimer) clearTimeout(toastTimer);
     el.style.transform = 'translateX(-50%) translateY(0)';
     el.style.opacity = '1';
