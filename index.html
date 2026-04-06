@@ -2913,6 +2913,7 @@ let _swipeToastTimer = null;
 function showSwipeToast(msg) {
   if (countMarbles() <= 1) return; // suppress when only 1 marble left
   if (document.getElementById('overlay').classList.contains('show')) return; // win modal active
+  haptic(200); // long buzz on toast
   const el = document.getElementById('swipe-toast');
   document.getElementById('swipe-toast-msg').textContent = msg || 'Tap, don\'t swipe/drag.';
   if (_swipeToastTimer) clearTimeout(_swipeToastTimer);
@@ -2982,6 +2983,12 @@ function resetIdleHintTimer() {
 function cancelIdleHintTimer() {
   if (_idleHintTimer) clearTimeout(_idleHintTimer);
   _idleHintTimer = null;
+}
+
+
+// ── Haptic feedback (Android only, silent fail on iOS/desktop) ───────────────
+function haptic(pattern) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
 }
 
 function showAbout() { document.getElementById('about-overlay').classList.add('show'); }
@@ -3062,6 +3069,7 @@ function cancelHintAfterError() {
 function showInvalidToast() {
   if (countMarbles() <= 1) return; // suppress when only 1 marble left
   if (document.getElementById('overlay').classList.contains('show')) return; // win modal active
+  haptic(200); // long buzz on toast
   const el = document.getElementById('invalid-toast');
   document.getElementById('invalid-toast-msg').textContent = "Invalid move! Try again or see 'Get Started'.";
   if (toastTimer) clearTimeout(toastTimer);
@@ -3193,6 +3201,7 @@ async function checkGameState() {
     document.getElementById('overlay-msg').textContent = `Brilliant! Solved in ${timeParts.join(' ')} ⏱`;
     document.getElementById('overlay').classList.add('show');
     launchConfetti();
+    haptic([100, 50, 100, 50, 200]); // celebration haptic
     stopTimer();
     cancelIdleHintTimer();
     // Save to recent players
@@ -3217,6 +3226,7 @@ async function checkGameState() {
     const marbleWord = marblesLeft === 1 ? 'marble' : 'marbles';
     document.getElementById('gameover-msg').innerHTML = `You got stuck with ${marblesLeft} ${marbleWord}.<br>Give it another go!`;
     document.getElementById('gameover-overlay').classList.add('show');
+    haptic(300); // long buzz on game over
     stopTimer();
     cancelIdleHintTimer();
     // Save to recent players
