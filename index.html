@@ -1842,7 +1842,7 @@
     opacity: 1;
   }
   .reset-capsule.inactive {
-    opacity: 0.06;
+    opacity: 0;
     cursor: default;
     pointer-events: none;
   }
@@ -1906,6 +1906,69 @@
     pointer-events: none;
   }
 
+
+  /* Mobile row: About Game left, Restart Game centre */
+  .reset-about-row-mobile {
+    display: none;
+    width: calc(100vw - 24px);
+    max-width: 540px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto;
+  }
+  .reset-row-spacer { flex: 1; }
+  @media (max-width: 999px) {
+    .reset-about-row-mobile {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .reset-about-row-mobile .about-btn-mobile {
+      display: flex;
+      align-items: center;
+      position: absolute;
+      left: 0;
+      width: fit-content;
+      background: none; border: none;
+      color: #e0c880; font-size: 13px;
+      letter-spacing: 1px; cursor: pointer;
+      opacity: 0.60; padding: 0 !important; margin: 0 !important;
+      transform: translateY(6px);
+      transition: color 0.2s, opacity 0.2s;
+    }
+    .reset-about-row-mobile .about-btn-mobile:hover { color: #fff; opacity: 1; }
+    /* Hide old desktop reset-capsule-wrap standalone */
+    .reset-capsule-wrap { margin: 0 auto; }
+  }
+
+
+  .share-btn-mobile { display: none; }
+  @media (max-width: 999px) {
+    .share-btn-mobile {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      position: absolute;
+      right: 0;
+      width: fit-content;
+      background: none; border: none;
+      color: #e0c880; font-size: 13px;
+      letter-spacing: 1px; cursor: pointer;
+      opacity: 0.60; padding: 0 !important; margin: 0 !important;
+      transform: translateY(6px);
+      transition: color 0.2s, opacity 0.2s;
+    }
+    .share-btn-mobile:hover { color: #fff; opacity: 1; }
+    /* Remove spacer */
+    .reset-row-spacer { display: none; }
+  }
+
+
+  @media (max-width: 999px) {
+    .share-btn-desktop-only { display: none; }
+  }
+
 </style>
 </head>
 <body>
@@ -1916,13 +1979,7 @@
   <div style="display:flex;align-items:center;gap:20px;">
     <button class="about-btn" onclick="showAbout()">About</button>
     <div style="position:relative;">
-      <button class="share-btn" onclick="shareGame()" title="Share this game">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-        </svg>
-        Share
-      </button>
+      <button class="share-btn share-btn-desktop-only" onclick="shareGame()" title="Share this game">Share</button>
       <div class="share-toast" id="share-toast">✓ Share link copied.</div>
     </div>
     <button class="instructions-btn" onclick="showInstructions()">Get Started</button>
@@ -1967,8 +2024,12 @@
           <div class="board" id="board"></div>
         </div>
       </div>
-      <!-- Restart Game between board and tray -->
-      <div class="reset-capsule-wrap"><div class="reset-capsule inactive" id="reset-capsule" onclick="resetGame()">Restart Game</div></div>
+      <!-- Restart Game + About Game row -->
+      <div class="reset-about-row-mobile">
+        <button class="about-btn about-btn-mobile" onclick="showAbout()">About</button>
+        <div class="reset-capsule-wrap"><div class="reset-capsule inactive" id="reset-capsule" onclick="resetGame()">Restart Game</div></div>
+        <button class="share-btn share-btn-mobile" onclick="shareGame()" title="Share this game">Share</button>
+      </div>
       <!-- Mobile stat panels — below reset -->
       <div class="mobile-stats">
         <div class="sidebar-card mobile-stat-card">
@@ -1979,9 +2040,7 @@
           <div class="sidebar-title">Most Recent Finishers</div>
           <div id="sb-recent-mobile"><div class="mini-empty">Loading…</div></div>
         </div>
-        <div style="display:flex;justify-content:flex-end;margin-top:16px;">
-          <button class="about-btn about-btn-mobile" onclick="showAbout()">About Game</button>
-        </div>
+
       </div>
     </div>
     <!-- Right sidebar: stats + mini leaderboard (desktop only) -->
