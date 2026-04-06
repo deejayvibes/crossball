@@ -1969,6 +1969,12 @@
     .share-btn-desktop-only { display: none; }
   }
 
+
+  .desktop-reset-only { display: flex; }
+  @media (max-width: 999px) {
+    .desktop-reset-only { display: none; }
+  }
+
 </style>
 </head>
 <body>
@@ -2024,6 +2030,8 @@
           <div class="board" id="board"></div>
         </div>
       </div>
+      <!-- Desktop-only Restart Game -->
+      <div class="reset-capsule-wrap desktop-reset-only"><div class="reset-capsule inactive" id="reset-capsule-desktop" onclick="resetGame()">Restart Game</div></div>
       <!-- Restart Game + About Game row -->
       <div class="reset-about-row-mobile">
         <button class="about-btn about-btn-mobile" onclick="showAbout()">About</button>
@@ -3063,6 +3071,55 @@ function haptic(pattern) {
   if (navigator.vibrate) navigator.vibrate(pattern);
 }
 
+
+// ── Exit intent — fires when game is active ───────────────────────────────────
+let _exitCallback = null;
+let _exitOverlayActive = false;
+
+function showExitOverlay(callback) {
+  if (!timerStarted) { if (callback) callback(); return; } // game not started — allow
+  _exitCallback = callback || null;
+  _exitOverlayActive = true;
+  const el = document.getElementById('exit-overlay');
+  el.style.display = 'flex';
+}
+
+function confirmExit() {
+  document.getElementById('exit-overlay').style.display = 'none';
+  _exitOverlayActive = false;
+  resetGame(); // reset board to default state
+  if (_exitCallback) { _exitCallback(); _exitCallback = null; }
+}
+
+function cancelExit() {
+  document.getElementById('exit-overlay').style.display = 'none';
+  _exitOverlayActive = false;
+  _exitCallback = null;
+}
+
+// ── beforeunload — browser refresh / tab close ────────────────────────────────
+window.addEventListener('beforeunload', e => {
+  if (timerStarted && !_exitOverlayActive) {
+    e.preventDefault();
+    e.returnValue = 'Your game progress will be lost. Are you sure you want to leave?';
+    return e.returnValue;
+  }
+});
+
+// ── popstate — browser back button ────────────────────────────────────────────
+// Push a state so back button triggers popstate instead of navigating away
+history.pushState({ gameActive: true }, '');
+window.addEventListener('popstate', e => {
+  if (timerStarted) {
+    // Push state again to prevent actual navigation
+    history.pushState({ gameActive: true }, '');
+    showExitOverlay(() => {
+      // User confirmed — go back
+      history.go(-2);
+    });
+  }
+});
+
 function showAbout() { document.getElementById('about-overlay').classList.add('show'); }
 function hideAbout() { document.getElementById('about-overlay').classList.remove('show'); }
 
@@ -3394,6 +3451,41 @@ window.addEventListener('DOMContentLoaded', () => {
     <h2>A Bit of History</h2>
     <p>The game dates back to the court of Louis XIV in 17th-century France. Legend has it that it was invented by a nobleman imprisoned in the Bastille to pass the time, though most historians believe it originated from simpler mathematical folk games.</p>
     <p class="about-credit">(Digitally recreated by <a href="https://www.linkedin.com/in/dhaneeshjameson/" target="_blank" rel="noopener" class="about-credit-link">Dhaneesh Jameson</a>)</p>
+  </div>
+</div>
+
+
+<!-- Exit Intent overlay -->
+<div id="exit-overlay" style="
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.80);
+  z-index:600; align-items:center; justify-content:center;">
+  <div style="
+    background:linear-gradient(160deg,#1e1408 0%,#140e04 100%);
+    border:2px solid rgba(200,168,60,0.40);
+    border-radius:16px; padding:36px 40px 30px;
+    width:340px; max-width:calc(100vw - 32px);
+    text-align:center; box-shadow:0 30px 80px rgba(0,0,0,0.80);
+    position:relative;">
+    <div style="font-size:36px; margin-bottom:12px;">🎮</div>
+    <h2 style="font-family:Georgia,serif; color:#f0d878; font-size:20px; margin-bottom:10px;">Leave the game?</h2>
+    <p style="font-family:Georgia,serif; color:#c8a060; font-size:14px; line-height:1.6; margin-bottom:28px;">Your current game progress will be lost if you leave now.</p>
+    <button onclick="confirmExit()" style="
+      width:100%; padding:12px;
+      background:linear-gradient(135deg,#ffd93d 0%,#ff9500 100%);
+      color:#1a1208; border:none; border-radius:50px;
+      font-size:15px; font-weight:bold; font-family:Georgia,serif;
+      letter-spacing:1px; cursor:pointer; margin-bottom:14px;">
+      Leave Game
+    </button>
+    <button onclick="cancelExit()" style="
+      width:100%; padding:10px;
+      background:transparent; border:1px solid rgba(200,168,60,0.40);
+      border-radius:50px; color:rgba(200,168,60,0.70);
+      font-size:14px; font-family:Georgia,serif;
+      letter-spacing:1px; cursor:pointer;">
+      Keep Playing
+    </button>
   </div>
 </div>
 
